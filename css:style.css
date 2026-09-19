@@ -363,3 +363,14 @@ table.tbl tbody tr.clickable{cursor:pointer}
   .print-area .preview-paper{border:0;padding:0;max-width:none;margin:0}
   .rcpt{width:57mm;max-width:57mm;margin:0}
 }
+
+/* ---------- auth prompt ---------- */
+.auth-reason{
+  background:var(--leaf-wash);
+  border-left:3px solid var(--leaf);
+  padding:10px 14px;
+  border-radius:var(--r);
+  font-size:13px;
+  margin:0 0 14px;
+  color:var(--ink);
+}
