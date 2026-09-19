@@ -8,13 +8,14 @@ import { receiptHTML, printReceipt, printDocument } from './receipt.js';
 import { currentUser, logout, can, audit, ROLE_PERMS } from './auth.js';
 
 // --- boot ---
-const ME = currentUser();
-if (!ME) { location.href = 'index.html'; throw new Error('not signed in'); }
+import { askPassword } from './prompt.js';
+import { audit, can, setLastActor } from './auth.js';
+
 await loadAll();
 
 document.getElementById('app').hidden = false;
-document.getElementById('whoName').textContent = ME.name;
-document.getElementById('whoRole').textContent = ME.role;
+document.getElementById('lastUser').textContent = 'No action yet';
+document.getElementById('lastRole').textContent = 'Actions will ask for a password';
 
 // --- nav ---
 const NAV = [
@@ -44,7 +45,7 @@ nav.querySelectorAll('button').forEach(b => {
   b.onclick = () => go(b.dataset.page);
 });
 
-document.getElementById('logoutBtn').onclick = logout;
+document.getElementById('usersBtn').onclick = () => staffPanel();
 document.getElementById('themeBtn').onclick = () => {
   const cur = document.documentElement.getAttribute('data-theme')
     || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
@@ -243,6 +244,34 @@ async function addToCart(pid, qty, opts = {}){
   document.getElementById('posSugg').hidden = true;
   drawGrid();
   drawCart(opts.flash ? pid : null);
+}
+
+async function voidTransaction(saleId){
+  const actor = await askPassword({
+    title: 'Void transaction',
+    role: 'Administrator',   // ← only admins can void
+    reason: `Voiding <b>${saleId}</b> returns all items to stock. Administrator only.`
+  });
+  if (!actor) return;
+
+const actor = await askPassword({
+  title: 'Adjust stock',
+  reason: `Change stock for <b>${product.name}</b>.`
+});
+
+const actor = await askPassword({
+  title: 'Create purchase order',
+  reason: `New order for <b>${supplierName}</b>.`
+});
+
+const actor = await askPassword({
+  title: 'Wipe all data',
+  role: 'Administrator',
+  reason: 'This erases every product, sale, receipt and setting. Administrator only.'
+});
+
+  // ...do the void...
+  audit('Voided transaction', saleId, actor);
 }
 
 function makeLine(p, qty){
@@ -522,12 +551,14 @@ function drawTotals(){
 
 async function completeSale(){
   if (!CART.lines.length) return;
-  const t = cartTotals();
 
-  if (t.customer_type !== 'regular' && (!CART.idType.trim() || !CART.idNumber.trim())){
-    toast('Enter the ID type and number for the discount.', 'bad');
-    return;
-  }
+  const actor = await askPassword({
+    title: 'Complete sale',
+    reason: `Total <b>${peso(cartTotals().total)}</b> — your name will be recorded as the cashier on this receipt.`
+  });
+  if (!actor) return;
+
+  const t = cartTotals();
 
   // FEFO allocation check
   for (const l of CART.lines){
@@ -642,6 +673,11 @@ async function completeSale(){
   drawGrid();
   showReceipt(saleId, true);
 }
+
+  setLastActor(actor);
+  document.getElementById('lastUser').textContent = actor.name;
+  document.getElementById('lastRole').textContent = `Last action · ${actor.role}`;
+  audit('Completed sale', `${orNo} · ${peso(t.total)}`, actor);
 
 function nextNumber(kind){
   S.settings.counters[kind] = (S.settings.counters[kind] || 0) + 1;
