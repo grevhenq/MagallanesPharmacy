@@ -554,7 +554,7 @@ table.tbl tbody tr.clickable{cursor:pointer}
 
 /* ---------------- 1. STORAGE & REPOSITORY ---------------- */
 const DB_NAME = 'magallanes_pharmacy';
-const DB_VER = 2; // Incremented for doctors store
+const DB_VER = 2; 
 const SCHEMA = {
   meta:            { kp:'key', idx:[] },
   users:           { kp:'id', idx:['username'] },
@@ -624,7 +624,7 @@ async function loadApplicationData(){
 async function saveSettings(){ await Repo.put('meta', { key:'settings', value:S.settings }); }
 
 /* ---------------- 2. UTILITIES ---------------- */
-const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2,10));
+const uid = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2,10));
 const $  = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -647,10 +647,28 @@ const D = {
   startOfYear: d => new Date(new Date(d).getFullYear(), 0, 1)
 };
 
+// Fallback hashing mechanism added for file:/// local execution
 async function sha256(text){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  if (window.crypto && crypto.subtle) {
+    try {
+      const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+      return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+    } catch(e) {} // Fallthrough on error
+  }
+  // Safe fallback if running offline/locally
+  let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+  for (let i = 0, ch; i < text.length; i++) {
+      ch = text.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 2654435761);
+      h2 = Math.imul(h2 ^ ch, 1597334677);
+  }
+  h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+  h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+  h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+  h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  return (h1 >>> 0).toString(16).padStart(8,'0') + (h2 >>> 0).toString(16).padStart(8,'0');
 }
+
 const hashPw = (pw, salt) => sha256(salt + '\u00A7' + pw);
 
 function preserveFocus(render){
@@ -782,7 +800,8 @@ async function seedDemoData(){
     { id:uid(), name:'OTC Medicines', description:'Over-the-counter remedies', demo:true }
   ];
   const locs = [
-    { id:uid(), location_code:'A1', location_name:'Shelf A1', description:'', demo:true }
+    { id:uid(), location_code:'A1', location_name:'Shelf A1', description:'', demo:true },
+    { id:uid(), location_code:'A2', location_name:'Shelf A2', description:'', demo:true }
   ];
   const sups = [
     { id:uid(), name:'Medisource', contact_person:'Ana', phone:'1234', email:'a@b', address:'Manila', payment_terms:'COD', tax_info:'', notes:'', demo:true }
@@ -795,6 +814,7 @@ async function seedDemoData(){
     { id:uid(), barcode:'480111111', sku:'BIO-001', name:'Biogesic 500mg Tablet', generic_name:'Paracetamol', brand:'Biogesic', category_id:cats[1].id, supplier_id:sups[0].id, location_id:locs[0].id, unit:'tablet', cost_price:2.40, selling_price:4.00, discount_price:0, minimum_stock:40, reorder_point:120, maximum_stock:600, current_stock:150, rx_required:false, temp_sensitive:false, storage_req:'', reg_no:'', description:'', status:'active', vat_exempt:false, seniorPwdEligible:true, created_at:now.toISOString(), updated_at:now.toISOString(), demo:true },
     { id:uid(), barcode:'480222222', sku:'AMX-001', name:'Amoxicillin 500mg Capsule', generic_name:'Amoxicillin', brand:'Amoxil', category_id:cats[0].id, supplier_id:sups[0].id, location_id:locs[0].id, unit:'capsule', cost_price:6.80, selling_price:10.50, discount_price:0, minimum_stock:50, reorder_point:150, maximum_stock:700, current_stock:200, rx_required:true, temp_sensitive:false, storage_req:'', reg_no:'', description:'', status:'active', vat_exempt:false, seniorPwdEligible:true, created_at:now.toISOString(), updated_at:now.toISOString(), demo:true }
   ];
+  
   const batches = products.map(p => ({ id:uid(), product_id:p.id, lot_no:'L1234', expiry:D.iso(D.addDays(now, 365)), qty:p.current_stock, cost_price:p.cost_price, received_at:now.toISOString(), po_id:null, demo:true }));
 
   await Repo.putMany('categories', cats);
@@ -877,6 +897,37 @@ let ME = null;
 const can = p => !!ME && (ROLE_PERMS[ME.role]?.includes('*') || ROLE_PERMS[ME.role]?.includes(p));
 const canNegative = () => ME && (ME.role === 'Administrator' || ME.role === 'Manager');
 
+async function login(username, password){
+  const u = S.users.find(x => x.username.toLowerCase() === username.trim().toLowerCase() && x.status === 'active');
+  if (!u) return null;
+  const h = await hashPw(password, u.pass_salt);
+  return h === u.pass_hash ? u : null;
+}
+function startSession(u){
+  ME = u;
+  sessionStorage.setItem('mp_session', u.id);
+  $('#login').style.display = 'none';
+  $('#app').classList.add('on');
+  $('#whoName').textContent = u.name;
+  $('#whoRole').textContent = u.role;
+  renderNav();
+  const first = NAV.find(i => i.key && can(i.perm));
+  go(can('pos') && u.role === 'Cashier' ? 'pos' : (first ? first.key : 'dashboard'));
+  audit('Signed in', u.role);
+}
+function logout(){
+  audit('Signed out', '');
+  ME = null; sessionStorage.removeItem('mp_session');
+  $('#app').classList.remove('on');
+  $('#login').style.display = 'grid';
+  $('#lgPass').value = ''; $('#lgErr').textContent = '';
+  $('#lgUser').focus();
+}
+async function audit(action, detail){
+  const rec = { id:uid(), at:new Date().toISOString(), user_name:ME ? ME.name : 'System', action, detail:String(detail || '') };
+  S.audit.push(rec); await Repo.put('audit', rec);
+}
+
 const NAV = [
   { key:'dashboard',   label:'Dashboard',   ic:'\u25A6', perm:'dashboard' },
   { key:'pos',         label:'POS',         ic:'\u{1F6D2}', perm:'pos' },
@@ -933,107 +984,37 @@ function go(key){
   $$('#nav button').forEach(b => b.classList.toggle('sel', b.dataset.page === key));
   const [t, s] = PAGE_TITLES[key] || [key, ''];
   $('#pgTitle').textContent = t; $('#pgSub').textContent = s;
-  try { VIEWS[key] && VIEWS[key](); } catch (err){ console.error(err); toast('Something failed while drawing this page. Check the console.', 'bad'); }
+  try { VIEWS[key] && VIEWS[key](); } catch (err){ console.error(err); toast('Error drawing page.', 'bad'); }
   window.scrollTo(0,0);
 }
 function refresh(){ if (CURRENT) VIEWS[CURRENT] && VIEWS[CURRENT](); }
 
-async function login(username, password){
-  const u = S.users.find(x => x.username.toLowerCase() === username.trim().toLowerCase() && x.status === 'active');
-  if (!u) return null;
-  const h = await hashPw(password, u.pass_salt);
-  return h === u.pass_hash ? u : null;
-}
-function startSession(u){
-  ME = u;
-  sessionStorage.setItem('mp_session', u.id);
-  $('#login').style.display = 'none';
-  $('#app').classList.add('on');
-  $('#whoName').textContent = u.name;
-  $('#whoRole').textContent = u.role;
-  renderNav();
-  const first = NAV.find(i => i.key && can(i.perm));
-  go(can('pos') && u.role === 'Cashier' ? 'pos' : (first ? first.key : 'dashboard'));
-  audit('Signed in', u.role);
-}
-function logout(){
-  audit('Signed out', '');
-  ME = null; sessionStorage.removeItem('mp_session');
-  $('#app').classList.remove('on');
-  $('#login').style.display = 'grid';
-  $('#lgPass').value = ''; $('#lgErr').textContent = '';
-  $('#lgUser').focus();
-}
-async function audit(action, detail){
-  const rec = { id:uid(), at:new Date().toISOString(), user_name:ME ? ME.name : 'System', action, detail:String(detail || '') };
-  S.audit.push(rec); await Repo.put('audit', rec);
+/* ---------------- 7. DOCTORS / PRESCRIPTIONS ---------------- */
+function addDoctorModal(onSuccess) {
+    modal({
+        title: 'Add Doctor', width: 'narrow',
+        body: `
+            <label class="f"><span>Doctor Name *</span><input class="inp" id="dName" placeholder="Juan Dela Cruz"></label>
+            <label class="f"><span>PRC License Number *</span><input class="inp" id="dLic"></label>
+            <div id="dErr"></div>
+        `,
+        footer: `<button class="btn" data-close>Cancel</button><button class="btn pri" id="dSave">Save Doctor</button>`,
+        onOpen: (root, close) => {
+            root.querySelector('#dSave').onclick = async () => {
+                const name = root.querySelector('#dName').value.trim();
+                const prc = root.querySelector('#dLic').value.trim();
+                if(!name || !prc) { root.querySelector('#dErr').innerHTML = `<div class="banner bad">Name and PRC are required.</div>`; return; }
+                const doc = { id: uid(), name, prcLicenseNo: prc, demo: false };
+                await Repo.put('doctors', doc);
+                S.doctors.push(doc);
+                close();
+                if(onSuccess) onSuccess(doc);
+            }
+        }
+    });
 }
 
-/* ---------------- 6. DASHBOARD ---------------- */
-function salesBetween(from, to){
-  const a = +new Date(from), b = +new Date(to);
-  return S.sales.filter(s => s.status === 'completed' && +new Date(s.transaction_date) >= a && +new Date(s.transaction_date) <= b);
-}
-function todaySales(){
-  const start = new Date(); start.setHours(0,0,0,0);
-  const end = new Date(); end.setHours(23,59,59,999);
-  return salesBetween(start, end);
-}
-const sum = (arr, f) => arr.reduce((a, x) => a + num(f(x)), 0);
-const inventoryValue = () => sum(S.products.filter(p => p.status === 'active'), p => num(p.current_stock) * num(p.cost_price));
-
-VIEWS.dashboard = function(){
-  const t = todaySales();
-  const revenue = sum(t, s => s.total);
-  const itemsToday = S.sale_items.filter(si => t.some(s => s.id === si.sale_id)).reduce((a,x) => a + num(x.quantity), 0);
-  const active = S.products.filter(p => p.status === 'active');
-  const low = active.filter(p => { const st = stockStatus(p).key; return st === 'low' || st === 'critical'; });
-  const out = active.filter(p => num(p.current_stock) <= 0);
-  const expiring = active.map(p => ({ p, e:expiryInfo(p) })).filter(x => x.e && x.e.days <= 90);
-  const expired = expiring.filter(x => x.e.days < 0);
-  const pendingPOs = S.purchase_orders.filter(p => p.status === 'draft' || p.status === 'sent');
-  const recent = [...S.sales].sort((a,b) => b.transaction_date.localeCompare(a.transaction_date)).slice(0,8);
-
-  const top = topProducts(D.addDays(new Date(), -30), new Date(), 5);
-
-  $('#v-dashboard').innerHTML = `
-    ${expired.length ? `<div class="banner bad" style="margin-bottom:14px"><span>\u26A0</span><div><b>${expired.length} batch${expired.length>1?'es have':' has'} expired.</b> Pull these from the shelf before the next sale.</div></div>` : ''}
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); margin-bottom:16px">
-      <div class="stat hi"><div class="k">Sales today</div><div class="v">${peso(revenue)}</div><div class="d">${t.length} transaction${t.length===1?'':'s'}</div></div>
-      <div class="stat"><div class="k">Items sold today</div><div class="v">${qtyFmt(itemsToday)}</div><div class="d">Average sale ${peso(t.length ? revenue/t.length : 0)}</div></div>
-      <div class="stat"><div class="k">Inventory value</div><div class="v">${peso(inventoryValue())}</div><div class="d">At supplier cost</div></div>
-      <div class="stat ${low.length?'warn':''}"><div class="k">Needs reordering</div><div class="v">${low.length}</div><div class="d">${out.length} out of stock</div></div>
-      <div class="stat ${expiring.length?'warn':''}"><div class="k">Expiring \u2264 90 days</div><div class="v">${expiring.length}</div></div>
-    </div>
-    <div class="grid" style="grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)">
-      <div class="card">
-        <div class="hd"><h3>Recent transactions</h3></div>
-        <div class="tbl-wrap"><table class="tbl">
-          <thead><tr><th>Receipt</th><th>Time</th><th>Payment</th><th class="num">Total</th></tr></thead>
-          <tbody>${recent.length ? recent.map(s => `<tr class="clickable" data-sale="${s.id}">
-            <td class="mono">${esc(s.receipt_number)}${s.status==='voided'?' <span class="chip bad">Void</span>':''}</td>
-            <td>${D.dt(s.transaction_date)}</td><td>${esc(s.payment_method)}</td>
-            <td class="num">${peso(s.total)}</td></tr>`).join('')
-            : `<tr><td colspan="4"><div class="empty"><div class="big">No sales recorded yet</div></div></td></tr>`}</tbody>
-        </table></div>
-      </div>
-    </div>`;
-
-  $$('#v-dashboard [data-sale]').forEach(r => r.onclick = () => { if (can('receipts')){ go('receipts'); setTimeout(() => openReceipt(r.dataset.sale), 60); } });
-};
-
-function topProducts(from, to, limit){
-  const ids = new Set(salesBetween(from, to).map(s => s.id));
-  const agg = {};
-  S.sale_items.filter(si => ids.has(si.sale_id)).forEach(si => {
-    const k = si.product_id || si.name;
-    agg[k] = agg[k] || { name:si.name, qty:0, revenue:0, product_id:si.product_id };
-    agg[k].qty += num(si.quantity); agg[k].revenue += num(si.subtotal);
-  });
-  return Object.values(agg).sort((a,b) => b.revenue - a.revenue).slice(0, limit || 10);
-}
-
-/* ---------------- 7. POINT OF SALE ---------------- */
+/* ---------------- 8. POINT OF SALE & CART ---------------- */
 const CART = { lines:[] };
 let POS_FILTER = { q:'', cat:'' };
 let SUGG_INDEX = -1;
@@ -1083,7 +1064,6 @@ VIEWS.pos = function(){
       </div>
       <div class="prod-grid" id="posGrid"></div>
     </section>
-
     <aside class="cart">
       <div class="ch"><h3>Current sale</h3><span class="chip neutral" id="cartCount">0 items</span>
         <button class="btn sm ghost" id="cartClear" title="Clear the cart (Esc)">Clear</button></div>
@@ -1095,8 +1075,7 @@ VIEWS.pos = function(){
   $('#posSearch').oninput = e => { POS_FILTER.q = e.target.value; drawSuggestions(); drawGrid(); };
   $('#posSearch').onkeydown = suggKeys;
   $('#posSearch').onblur = () => setTimeout(() => { const s = $('#posSugg'); if (s) s.hidden = true; }, 160);
-  $('#posBarcode').onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); handleBarcode(e.target.value); e.target.value = ''; } };
-  $$('#v-pos [data-cat]').forEach(b => b.onclick = () => { POS_FILTER.cat = b.dataset.cat; VIEWS.pos(); $('#posSearch').focus(); });
+  $('#posBarcode').onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); handleBarcode(e.target.value); e.target.value = ''; } };   $$('#v-pos [data-cat]').forEach(b => b.onclick = () => { POS_FILTER.cat = b.dataset.cat; VIEWS.pos(); $('#posSearch').focus(); });
   $('#cartClear').onclick = clearCart;
   drawGrid(); drawCart();
   setTimeout(() => $('#posBarcode') && $('#posBarcode').focus(), 40);
@@ -1146,8 +1125,7 @@ function drawSuggestions(){
   $$('.s-item', box).forEach(it => it.onmousedown = e => { e.preventDefault(); addToCart(it.dataset.pick, 1); });
 }
 function suggKeys(e){
-  const box = $('#posSugg'); if (!box || box.hidden) return;
-  const items = $$('.s-item', box);
+  const box = $('#posSugg'); if (!box \vert{}\vert{} box.hidden) return;   const items = $$('.s-item', box);
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
     e.preventDefault();
     SUGG_INDEX = e.key === 'ArrowDown' ? Math.min(SUGG_INDEX+1, items.length-1) : Math.max(SUGG_INDEX-1, 0);
@@ -1177,18 +1155,14 @@ function addToCart(pid, qty, opts = {}){
   if (num(p.current_stock) <= 0){ toast(`${p.name} is out of stock.`, 'bad'); return; }
   const existing = CART.lines.find(l => l.product_id === pid);
   const wanted = (existing ? existing.qty : 0) + qty;
-  if (wanted > num(p.current_stock)){
-    toast(`Only ${qtyFmt(p.current_stock)} ${p.unit} of ${p.name} on hand.`, 'warn');
-    return;
-  }
-  if (existing){
+  if (wanted > num(p.current_stock)){ toast(`Only ${qtyFmt(p.current_stock)} ${p.unit} of ${p.name} on hand.`, 'warn'); return; }
+  if (existing) {
     existing.qty = wanted;
   } else {
-    CART.lines.push({ product_id:p.id, name:p.name, generic_name:p.generic_name, barcode:p.barcode, sku:p.sku,
-      unit:p.unit, unit_price:num(p.selling_price), qty, rx_required:!!p.rx_required });
+    CART.lines.push({ product_id:p.id, name:p.name, generic_name:p.generic_name, barcode:p.barcode, sku:p.sku, unit:p.unit, unit_price:num(p.selling_price), qty, rx_required:!!p.rx_required });
   }
   POS_FILTER.q = '';
-  const sb = $('#posSearch'); if (sb){ sb.value = ''; }
+  const sb = $('#posSearch'); if (sb) sb.value = '';
   const sg = $('#posSugg'); if (sg) sg.hidden = true;
   drawGrid(); drawCart(opts.flash ? pid : null);
   const bc = $('#posBarcode'); if (bc) bc.focus();
@@ -1205,13 +1179,13 @@ function drawCart(flashId){
       return `<div class="citem ${flashId===l.product_id?'flash':''}" data-i="${i}">
         <div class="l1">
           <div class="nm">${esc(l.name)}${l.rx_required?' <span class="chip rx">Rx</span>':''}
-            <div class="meta">${esc(l.generic_name||'')} \u00B7 ${peso(l.unit_price)} / ${esc(l.unit)} \u00B7 shelf ${esc(locName(p?.location_id))}</div></div>
+            <div class="meta">${esc(l.generic_name||'')} \u00B7 ${peso(l.unit_price)} / ${esc(l.unit)}</div></div>
           <button class="x" data-rm="${i}" title="Remove">&times;</button>
         </div>
         <div class="l2">
-          <div class="qty"><button data-dec="${i}" aria-label="Less">\u2212</button>
-            <input type="number" min="1" value="${l.qty}" data-q="${i}" aria-label="Quantity">
-            <button data-inc="${i}" aria-label="More">+</button></div>
+          <div class="qty"><button data-dec="${i}">\u2212</button>
+            <input type="number" min="1" value="${l.qty}" data-q="${i}">
+            <button data-inc="${i}">+</button></div>
           <span class="tiny muted">${qtyFmt(p ? p.current_stock : 0)} on hand</span>
           <span class="amt">${peso(l.qty * l.unit_price)}</span>
         </div>
@@ -1232,6 +1206,7 @@ function setQty(i, q){
   if (p && q > num(p.current_stock)){ toast(`Only ${qtyFmt(p.current_stock)} ${p.unit} on hand.`, 'warn'); q = num(p.current_stock); }
   l.qty = q; drawCart(); drawGrid();
 }
+
 function clearCart(){
   if (!CART.lines.length) return;
   CART.lines = [];
@@ -1249,7 +1224,7 @@ function drawTotals(){
   $('#payBtn').onclick = showCheckoutModal;
 }
 
-/* ---------------- 8. CHECKOUT & SALE LOGIC ---------------- */
+/* ---------------- 9. CHECKOUT & SALE EXECUTION ---------------- */
 function allocateFEFO(pid, qty){
   const today = D.today();
   const lots = batchesOf(pid);
@@ -1352,72 +1327,93 @@ function showCheckoutModal() {
         const cName = g('#coName').value.trim();
         const payMode = g('#coPayMode').value;
         const tend = num(g('#coTend').value);
-        const ref = g('#coRef').value.trim();
+        const ref = g('#coRef')?.value.trim();
         const docId = requiresRx ? g('#coDocId').value : null;
 
         const errs = [];
-        if(cType !== 'REGULAR' && !cId) errs.push(`ID Number is required for ${cType}.`);
-        if(requiresRx && !docId) errs.push('A prescribing doctor must be selected.');
+        if (cType !== 'REGULAR' && !cId) errs.push(`${cType} ID Number is required.`);
+        if (requiresRx && !docId) errs.push('Prescription required: Please select a doctor.');
         
         const t = calculateTransactionTotals(CART.lines, cType, S.settings.vat);
-        
-        if(payMode === 'Cash' && tend < t.total) errs.push('Amount tendered is insufficient.');
-        if(payMode !== 'Cash' && !ref) errs.push('Reference number is required for digital payments.');
+        if (payMode === 'Cash' && tend < t.total) errs.push('Amount tendered is less than the total due.');
+        if (payMode !== 'Cash' && !ref) errs.push('Reference number is required for digital payments.');
 
-        if(errs.length){ g('#coErr').innerHTML = `<div class="banner bad" style="margin-top:10px">\u26A0<div>${errs.map(esc).join('<br>')}</div></div>`; return; }
+        if (errs.length) {
+            g('#coErr').innerHTML = `<div class="banner bad" style="margin-top:10px">\u26A0<div>${errs.map(esc).join('<br>')}</div></div>`;
+            return;
+        }
 
-        await completeSale({ cType, cId, cName, payMode, tend, ref, docId, t });
         close();
+        await executeSale({ cType, cId, cName, payMode, tend, ref, docId, totals: t });
       };
+      
+      if (requiresRx) {
+          root.querySelector('#coNewDoc').onclick = (e) => {
+              e.preventDefault();
+              addDoctorModal((newDoc) => {
+                  const sel = root.querySelector('#coDocId');
+                  sel.innerHTML += `<option value="${newDoc.id}" selected>Dr. ${esc(newDoc.name)} (PRC: ${esc(newDoc.prcLicenseNo)})</option>`;
+              });
+          };
+      }
     }
   });
 }
 
-async function completeSale({ cType, cId, cName, payMode, tend, ref, docId, t }){
+async function executeSale({ cType, cId, cName, payMode, tend, ref, docId, totals }) {
   for (const l of CART.lines){
-    const p = prod(l.product_id);
-    if (!p){ toast(`${l.name} is no longer in the catalogue.`, 'bad'); return; }
-    if (l.qty > num(p.current_stock)){ toast(`Not enough stock of ${p.name}.`, 'bad'); return; }
-    const a = allocateFEFO(p.id, l.qty);
-    if (a.shortfall > 0 && a.expiredBlocked > 0){
-      toast(`${p.name}: remaining stock is expired and cannot be sold.`, 'bad'); return;
-    }
-    l._alloc = a.alloc;
+      const p = prod(l.product_id);
+      if (!p){ toast(`${l.name} is no longer in the catalogue.`, 'bad'); return; }
+      if (l.qty > num(p.current_stock)){ toast(`Not enough stock of ${p.name}.`, 'bad'); return; }
+      const a = allocateFEFO(p.id, l.qty);
+      if (a.shortfall > 0 && a.expiredBlocked > 0){
+          toast(`${p.name}: the remaining stock is expired and cannot be sold.`, 'bad'); return;
+      }
+      l._alloc = a.alloc;
   }
 
   const now = new Date().toISOString();
   const txnNo = nextNumber('txn'), orNo = nextNumber('receipt');
   const saleId = uid();
   
-  const sale = { 
-    id:saleId, transaction_number:txnNo, receipt_number:orNo, transaction_date:now,
-    subtotal:t.subtotal, vatableSales:t.vatableSales, vatAmount:t.vatAmount, vatExemptSales:t.vatExemptSales,
-    discount:t.seniorPwdDiscount, discount_type:t.seniorPwdDiscount > 0 ? `${cType} 20%` : '', total:t.total,
-    amount_paid: payMode === 'Cash' ? round2(tend) : t.total,
-    change: payMode === 'Cash' ? round2(tend - t.total) : 0,
-    payment_method:payMode, payment_ref:ref, cashier_id:ME.id, cashier_name:ME.name,
-    customer_type:cType, customer_id:cId, customer_name:cName, doctor_id:docId,
-    status:'completed', demo:false 
+  const sale = {
+      id: saleId, transaction_number: txnNo, receipt_number: orNo, transaction_date: now,
+      subtotal: totals.subtotal, 
+      vatableSales: totals.vatableSales,
+      vatAmount: totals.vatAmount,
+      vatExemptSales: totals.vatExemptSales,
+      seniorPwdDiscount: totals.seniorPwdDiscount,
+      total: totals.total,
+      discount: totals.seniorPwdDiscount,
+      discount_type: totals.seniorPwdDiscount > 0 ? `${cType} Discount 20%` : '',
+      amount_paid: payMode === 'Cash' ? round2(tend) : totals.total,
+      change: payMode === 'Cash' ? round2(tend - totals.total) : 0,
+      payment_method: payMode, payment_ref: ref, 
+      cashier_id: ME.id, cashier_name: ME.name,
+      customer_type: cType, customer_id: cId, customer_name: cName || '',
+      doctor_id: docId,
+      status: 'completed', demo: false
   };
 
   const items = CART.lines.map(l => ({ 
-    id:uid(), sale_id:saleId, product_id:l.product_id, name:l.name,
-    generic_name:l.generic_name, barcode:l.barcode, quantity:l.qty, unit_price:l.unit_price,
-    subtotal:round2(l.qty * l.unit_price), batch_alloc:l._alloc || [], rx_required:l.rx_required, transaction_date:now 
+      id:uid(), sale_id:saleId, product_id:l.product_id, name:l.name,
+      generic_name:l.generic_name, barcode:l.barcode, quantity:l.qty, unit_price:l.unit_price,
+      subtotal: round2(l.qty * l.unit_price),
+      batch_alloc:l._alloc || [], rx_required: l.rx_required, transaction_date:now 
   }));
+  
   const receipt = { id:uid(), receipt_number:orNo, sale_id:saleId, printed_at:now, print_count:0 };
 
   const movements = [], productPatches = [], batchPatches = [];
   CART.lines.forEach(l => {
-    const p = prod(l.product_id);
-    const prev = num(p.current_stock), next = prev - l.qty;
-    productPatches.push({ ...p, current_stock:next, updated_at:now });
-    movements.push({ id:uid(), product_id:p.id, movement_type:'Sale', quantity:-l.qty, previous_stock:prev, new_stock:next,
-      reference_number:txnNo, reason:`Sold on ${orNo}`, user_id:ME.id, user_name:ME.name, created_at:now });
-    (l._alloc || []).forEach(a => {
-      const b = byId(S.batches, a.batch_id);
-      if (b) batchPatches.push({ ...b, qty: num(b.qty) - a.qty });
-    });
+      const p = prod(l.product_id);
+      const prev = num(p.current_stock), next = prev - l.qty;
+      productPatches.push({ ...p, current_stock:next, updated_at:now });
+      movements.push({ id:uid(), product_id:p.id, movement_type:'Sale', quantity:-l.qty, previous_stock:prev, new_stock:next, reference_number:txnNo, reason:`Sold on ${orNo}`, user_id:ME.id, user_name:ME.name, created_at:now });
+      (l._alloc || []).forEach(a => {
+          const b = byId(S.batches, a.batch_id);
+          if (b) batchPatches.push({ ...b, qty: num(b.qty) - a.qty });
+      });
   });
 
   try {
@@ -1442,13 +1438,13 @@ async function completeSale({ cType, cId, cName, payMode, tend, ref, docId, t })
   productPatches.forEach(p => { const i = S.products.findIndex(x => x.id === p.id); if (i > -1) S.products[i] = p; });
   batchPatches.forEach(b => { const i = S.batches.findIndex(x => x.id === b.id); if (i > -1) S.batches[i] = b; });
 
-  audit('Completed sale', `${orNo} \u00B7 ${peso(t.total)}`);
+  audit('Completed sale', `${orNo} \u00B7 ${peso(totals.total)}`);
   clearCart();
   LAST_SALE = saleId;
   showReceiptModal(saleId, { justSold:true });
 }
 
-/* ---------------- 9. RECEIPTS & PDF (57mm STRICT) ---------------- */
+/* ---------------- 10. RECEIPTS & PDF (57mm STRICT) ---------------- */
 function receiptHTML(saleId){
   const s = byId(S.sales, saleId); if (!s) return '<p>Receipt not found.</p>';
   const items = S.sale_items.filter(i => i.sale_id === saleId);
@@ -1492,8 +1488,8 @@ function receiptHTML(saleId){
       <table class="receipt-total">
         <tr><td>Subtotal</td><td class="r">${peso(s.subtotal).replace('\u20B1','')}</td></tr>
         ${S.settings.vat.show ? `
-            <tr><td>VATable Sales</td><td class="r">${peso(s.vatableSales).replace('\u20B1','')}</td></tr>
-            <tr><td>VAT Amount</td><td class="r">${peso(s.vatAmount).replace('\u20B1','')}</td></tr>
+            <tr><td>VATable Sales</td><td class="r">${peso(s.vatableSales || 0).replace('\u20B1','')}</td></tr>
+            <tr><td>VAT Amount</td><td class="r">${peso(s.vatAmount || 0).replace('\u20B1','')}</td></tr>
         ` : ''}
         ${s.customer_type !== 'REGULAR' ? `
             <tr><td>VAT-Exempt Sales</td><td class="r">${peso(s.vatExemptSales).replace('\u20B1','')}</td></tr>
@@ -1503,7 +1499,9 @@ function receiptHTML(saleId){
       <div class="receipt-divider"></div>
       <table class="receipt-total">
         <tr><td class="grand">TOTAL</td><td class="r grand">${peso(s.total)}</td></tr>
-        <tr><td style="padding-top:2mm">${esc(s.payment_method)}</td><td class="r" style="padding-top:2mm">${peso(s.amount_paid).replace('\u20B1','')}</td></tr>
+      </table>
+      <table class="receipt-total" style="margin-top:2mm;">
+        <tr><td>${esc(s.payment_method)}</td><td class="r">${peso(s.amount_paid).replace('\u20B1','')}</td></tr>
         ${s.payment_method === 'Cash' ? `<tr><td>Change</td><td class="r">${peso(s.change).replace('\u20B1','')}</td></tr>` : `<tr><td>Ref</td><td class="r">${esc(s.payment_ref)}</td></tr>`}
       </table>
       ${doc ? `
@@ -1583,7 +1581,7 @@ function showReceiptModal(saleId, { justSold = false } = {}){
   return m;
 }
 
-/* ---------------- 10. RECEIPTS VIEW ---------------- */
+/* ---------------- 11. RECEIPTS VIEW ---------------- */
 VIEWS.receipts = function(){
   let list = S.sales.slice().sort((a,b) => b.transaction_date.localeCompare(a.transaction_date));
   const q = RCPT_F.q.trim().toLowerCase();
@@ -1753,7 +1751,7 @@ function exportCSV(name, rows){
   toast(`Exported ${rows.length} row${rows.length===1?'':'s'}.`);
 }
 
-/* ---------------- 11. BOOT ---------------- */
+/* ---------------- 12. BOOT ---------------- */
 async function boot() {
     try {
         _db = await openDB();
@@ -1767,8 +1765,8 @@ async function boot() {
             if(lg) lg.textContent = '';
         }
 
-        $('.side .brand .nm').textContent = S.settings.pharmacy.name;
-        $('.side .brand .tag').textContent = S.settings.pharmacy.tagline;
+        const brandNm = $('.side .brand .nm'); if(brandNm) brandNm.textContent = S.settings.pharmacy.name;
+        const brandTag = $('.side .brand .tag'); if(brandTag) brandTag.textContent = S.settings.pharmacy.tagline;
         const lgHint = $('#lgHint');
         if (lgHint) lgHint.innerHTML = 'Demo accounts — <code>admin</code> / <code>admin123</code>, <code>cashier</code> / <code>cashier123</code>.';
         
@@ -1797,7 +1795,7 @@ async function boot() {
     } catch (error) {
         console.error(error);
         const lg = $('#lgErr');
-        if (lg) lg.textContent = 'System boot failed. Browser might block IndexedDB.';
+        if (lg) lg.textContent = 'System Error: ' + error.message;
     }
 }
 
