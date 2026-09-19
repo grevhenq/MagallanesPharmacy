@@ -4,11 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Magallanes Pharmacy — POS &amp; Inventory</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Libre+Franklin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<!-- PDF Library for Exact 57mm Generation -->
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 <style>
 /* ============================================================
    MAGALLANES PHARMACY — design tokens
@@ -210,10 +212,9 @@ table.tbl tbody tr.clickable{cursor:pointer}
 .banner.bad{background:var(--alert-wash); color:var(--alert)}
 .banner.info{background:var(--leaf-wash); color:var(--leaf)}
 .demo-tag{font-size:10px; color:var(--ink-3); border:1px solid var(--rule); padding:0 4px; border-radius:3px; margin-left:5px; vertical-align:1px}
-</style>
-<style>
+
 /* ---------- POS ---------- */
-.pos{display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:16px; align-items:start}
+.pos{display:grid; grid-template-columns:minmax(0,1fr) 400px; gap:16px; align-items:start}
 .pos .find{position:relative}
 .scan{display:flex; gap:10px; align-items:stretch; margin-bottom:12px}
 .scan .barcode{
@@ -306,33 +307,150 @@ table.tbl tbody tr.clickable{cursor:pointer}
   .fgrid,.fgrid.c3{grid-template-columns:1fr}
 }
 
-/* ---------- 57mm Receipt Core Styles ---------- */
+/* ============================================================
+   STRICT 57MM RECEIPT STYLING
+   ============================================================ */
 .receipt-paper {
-  width: 57mm; max-width: 57mm; height: auto; min-height: 0;
-  box-sizing: border-box; margin: 0 auto;
-  font-family: 'Libre Franklin', sans-serif; font-size: 10px; line-height: 1.25; 
-  padding: 2mm; background: #fff; color: #000;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Display shadow for preview only */
-}
-.receipt-paper * { font-family: 'Libre Franklin', sans-serif; }
-.rt-center { text-align: center; }
-.rt-right { text-align: right; }
-.rt-bold { font-weight: 600; }
-.rt-divider { border-top: 1px dashed #000; margin: 3mm 0; }
-.rt-table { width: 100%; border-collapse: collapse; font-size: 9px; }
-.rt-table td { padding: 0.5mm 0; vertical-align: top; }
-
-/* ---------- print ---------- */
-#printArea{display:none}
-@media print{
-  @page{size:57mm auto; margin:0}
-  html,body{width:57mm; margin:0; padding:0; background:#fff}
-  #login,.side,.top,.view,#toasts,.modal-bg,.no-print{display:none!important}
-  .main{margin:0!important}
-  #printArea{display:block!important; position:absolute; left:0; top:0; width:57mm; margin:0; padding:0;}
-  #printArea .receipt-paper{border:0; padding:1mm; max-width:57mm; width:57mm; height:auto!important; min-height:0!important; margin:0; box-shadow:none;}
+    width: 57mm;
+    max-width: 57mm;
+    height: auto;
+    min-height: 0;
+    box-sizing: border-box;
+    font-family: 'Libre Franklin', sans-serif;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #000;
+    background: #fff;
+    padding: 2mm;
+    margin: 0 auto;
 }
 
+.receipt-paper * {
+    font-family: 'Libre Franklin', sans-serif;
+}
+
+.receipt-header {
+    text-align: center;
+    margin-bottom: 3mm;
+}
+.receipt-header h2 {
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0 0 1mm 0;
+    letter-spacing: 0.02em;
+}
+.receipt-header .tagline {
+    font-size: 9px;
+    margin-bottom: 2mm;
+}
+.receipt-header .meta {
+    font-size: 9px;
+}
+
+.receipt-divider {
+    border-top: 1px dashed #000;
+    margin: 3mm 0;
+}
+
+.receipt-title {
+    text-align: center;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.receipt-meta {
+    font-size: 10px;
+    margin: 2mm 0;
+}
+.receipt-meta table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.receipt-meta td {
+    vertical-align: top;
+    padding: 0.5mm 0;
+}
+.receipt-meta .r {
+    text-align: right;
+}
+
+.receipt-item {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+.receipt-item td {
+    vertical-align: top;
+    padding: 0.5mm 0;
+}
+.receipt-item .product-name {
+    font-weight: 600;
+    display: block;
+}
+.receipt-item .r {
+    text-align: right;
+}
+
+.receipt-total {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 10px;
+}
+.receipt-total td {
+    padding: 0.5mm 0;
+}
+.receipt-total .r {
+    text-align: right;
+}
+.receipt-total .grand {
+    font-weight: 700;
+    font-size: 12px;
+}
+
+.receipt-section {
+    font-size: 10px;
+    margin-top: 2mm;
+}
+.receipt-section-title {
+    font-weight: 700;
+    margin-bottom: 1mm;
+}
+
+.receipt-footer {
+    text-align: center;
+    font-size: 9px;
+    margin-top: 3mm;
+}
+
+/* ---------- Print Configuration ---------- */
+#printArea { display: none; }
+@media print {
+    @page {
+        size: 57mm auto;
+        margin: 0;
+    }
+    html, body {
+        width: 57mm;
+        margin: 0;
+        padding: 0;
+        background: #fff;
+    }
+    body * { display: none !important; }
+    #printArea, #printArea * { display: block !important; visibility: visible; }
+    #printArea { position: absolute; left: 0; top: 0; width: 57mm; margin: 0; padding: 0; }
+    
+    .receipt-paper {
+        width: 57mm;
+        max-width: 57mm;
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+/* Backwards compatibility for A4 reporting */
 .a4{font-family:'Archivo',system-ui,sans-serif; color:#111; background:#fff; font-size:12px}
 .a4 .ph{display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2px solid #111; padding-bottom:10px; margin-bottom:14px}
 .a4 .ph .co{font-size:17px; font-weight:700; letter-spacing:-.01em}
@@ -352,6 +470,11 @@ table.tbl tbody tr.clickable{cursor:pointer}
 .a4 .sigs{display:grid; grid-template-columns:repeat(3,1fr); gap:24px; margin-top:44px; font-size:11px}
 .a4 .sigs .s{border-top:1px solid #111; padding-top:4px}
 .a4 .ft{margin-top:26px; font-size:10px; color:#666; border-top:1px solid #DDD; padding-top:6px}
+
+/* Preview wrappers */
+@media screen{
+  .preview-paper { background: #fff; padding: 14px; border: 1px solid var(--rule); border-radius: var(--r); overflow-x: auto; display: flex; justify-content: center;}
+}
 </style>
 </head>
 <body>
@@ -421,37 +544,15 @@ table.tbl tbody tr.clickable{cursor:pointer}
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <div id="printArea"></div>
-<style id="pageRule">@page{size:57mm auto;margin:0}</style>
+
 <script>
 /* ============================================================
    MAGALLANES PHARMACY — POS, Inventory & Procurement
-   Architecture: 
-   CONFIGURATION -> STATE -> DATABASE/REPO -> AUTHENTICATION -> 
-   PRODUCTS -> CART -> TAX/DISCOUNT ENGINE -> PRESCRIPTIONS/DOCTORS -> 
-   CHECKOUT -> SALES -> RECEIPTS -> PDF -> PRINTING -> INVENTORY -> UI -> BOOT
+   Architecture: CONFIG -> STATE -> REPO -> LOGIC -> UI
    ============================================================ */
 'use strict';
 
-/* ---------------- 1. CONFIGURATION & STATE ---------------- */
-let ME = null;
-let CURRENT = null;
-let POS_FILTER = { q:'', cat:'' };
-let SUGG_INDEX = -1;
-let LAST_SALE = null;
-let RCPT_F = { q:'', method:'', from:'', to:'', status:'', page:1 };
-let PF = { q:'', cat:'', sup:'', loc:'', stock:'', status:'active', page:1, sort:'name' };
-let INV_TAB = 'stock';
-let MOV_F = { q:'', type:'', page:1 };
-let AN = { range:'month', from:'', to:'' };
-let PROC_TAB = 'reorder';
-let SET_TAB = 'pharmacy';
-const PAGE_SIZE = 25;
-
-const CART = { lines:[] };
-const S = {};
-const VIEWS = {};
-
-/* ---------------- 2. DATABASE / REPOSITORY ---------------- */
+/* ---------------- 1. STORAGE & REPOSITORY ---------------- */
 const DB_NAME = 'magallanes_pharmacy';
 const DB_VER = 2; // Incremented for doctors store
 const SCHEMA = {
@@ -501,7 +602,7 @@ const Repo = {
   async putMany(store, arr){
     const t = tx(store,'readwrite'); const os = t.objectStore(store);
     arr.forEach(o => os.put(o));
-    return new Promise((res, rej) => { t.oncomplete = res; t.onerror = () => rej(t.error); });
+    return new Promise((res, rej) => { t.oncomplete = () => res(true); t.onerror = () => rej(t.error); });
   },
   async del(store, key){ await req(tx(store,'readwrite').objectStore(store).delete(key)); },
   async clear(store){ await req(tx(store,'readwrite').objectStore(store).clear()); },
@@ -513,9 +614,16 @@ const Repo = {
   }
 };
 
+/* In-memory mirror. */
+const S = {};
+async function loadApplicationData(){
+  for (const t of TABLES) {
+      if (t !== 'meta') S[t] = await Repo.all(t);
+  }
+}
 async function saveSettings(){ await Repo.put('meta', { key:'settings', value:S.settings }); }
 
-/* ---------------- 3. UTILITIES & UI HELPERS ---------------- */
+/* ---------------- 2. UTILITIES ---------------- */
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2,10));
 const $  = (s, r=document) => r.querySelector(s);
 const $$ = (s, r=document) => Array.from(r.querySelectorAll(s));
@@ -569,6 +677,7 @@ function toast(msg, kind){
   setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .2s'; setTimeout(() => t.remove(), 220); }, 2600);
 }
 
+/* Modal. Returns {close, root}. */
 function modal({ title, body, footer = '', width = '', onOpen, onClose }){
   const bg = document.createElement('div');
   bg.className = 'modal-bg';
@@ -648,7 +757,7 @@ function expiryInfo(p){
   return { days:d, cls, label, expiry:soonest.expiry, batch:soonest };
 }
 
-/* ---------------- 4. SEED & DEFAULT DATA ---------------- */
+/* ---------------- 3. SEED DATA ---------------- */
 const DEFAULT_SETTINGS = () => ({
   pharmacy: {
     name: 'MAGALLANES PHARMACY',
@@ -670,32 +779,28 @@ async function seedDemoData(){
   const now = new Date();
   const cats = [
     { id:uid(), name:'Prescription Drugs', description:'Requires a valid prescription', demo:true },
-    { id:uid(), name:'OTC Medicines', description:'Over-the-counter remedies', demo:true },
-    { id:uid(), name:'Vitamins & Supplements', description:'Multivitamins, minerals', demo:true }
+    { id:uid(), name:'OTC Medicines', description:'Over-the-counter remedies', demo:true }
   ];
   const locs = [
-    { id:uid(), location_code:'A1', location_name:'Shelf A1', description:'', demo:true },
-    { id:uid(), location_code:'A2', location_name:'Shelf A2', description:'', demo:true }
+    { id:uid(), location_code:'A1', location_name:'Shelf A1', description:'', demo:true }
   ];
   const sups = [
-    { id:uid(), name:'Medisource Distribution', contact_person:'Ana Villanueva', phone:'(02) 8555-0142', email:'orders@example', address:'Mandaluyong City', payment_terms:'30 days', tax_info:'', notes:'', demo:true }
+    { id:uid(), name:'Medisource', contact_person:'Ana', phone:'1234', email:'a@b', address:'Manila', payment_terms:'COD', tax_info:'', notes:'', demo:true }
   ];
-  const doctors = [
-    { id:uid(), name:'Juan Dela Cruz', prcLicenseNo:'0123456', demo:true },
-    { id:uid(), name:'Maria Santos', prcLicenseNo:'0654321', demo:true }
+  const docs = [
+    { id:uid(), name:'Juan Dela Cruz', prcLicenseNo:'0123456', specialization:'General Practice', clinic:'Magallanes Clinic', demo:true }
   ];
 
   const products = [
     { id:uid(), barcode:'480111111', sku:'BIO-001', name:'Biogesic 500mg Tablet', generic_name:'Paracetamol', brand:'Biogesic', category_id:cats[1].id, supplier_id:sups[0].id, location_id:locs[0].id, unit:'tablet', cost_price:2.40, selling_price:4.00, discount_price:0, minimum_stock:40, reorder_point:120, maximum_stock:600, current_stock:150, rx_required:false, temp_sensitive:false, storage_req:'', reg_no:'', description:'', status:'active', vat_exempt:false, seniorPwdEligible:true, created_at:now.toISOString(), updated_at:now.toISOString(), demo:true },
-    { id:uid(), barcode:'480222222', sku:'AMX-001', name:'Amoxicillin 500mg Capsule', generic_name:'Amoxicillin', brand:'Amoxil', category_id:cats[0].id, supplier_id:sups[0].id, location_id:locs[1].id, unit:'capsule', cost_price:6.80, selling_price:10.50, discount_price:0, minimum_stock:50, reorder_point:150, maximum_stock:700, current_stock:200, rx_required:true, temp_sensitive:false, storage_req:'', reg_no:'', description:'', status:'active', vat_exempt:false, seniorPwdEligible:true, created_at:now.toISOString(), updated_at:now.toISOString(), demo:true }
+    { id:uid(), barcode:'480222222', sku:'AMX-001', name:'Amoxicillin 500mg Capsule', generic_name:'Amoxicillin', brand:'Amoxil', category_id:cats[0].id, supplier_id:sups[0].id, location_id:locs[0].id, unit:'capsule', cost_price:6.80, selling_price:10.50, discount_price:0, minimum_stock:50, reorder_point:150, maximum_stock:700, current_stock:200, rx_required:true, temp_sensitive:false, storage_req:'', reg_no:'', description:'', status:'active', vat_exempt:false, seniorPwdEligible:true, created_at:now.toISOString(), updated_at:now.toISOString(), demo:true }
   ];
-  
   const batches = products.map(p => ({ id:uid(), product_id:p.id, lot_no:'L1234', expiry:D.iso(D.addDays(now, 365)), qty:p.current_stock, cost_price:p.cost_price, received_at:now.toISOString(), po_id:null, demo:true }));
 
   await Repo.putMany('categories', cats);
   await Repo.putMany('locations', locs);
   await Repo.putMany('suppliers', sups);
-  await Repo.putMany('doctors', doctors);
+  await Repo.putMany('doctors', docs);
   await Repo.putMany('products', products);
   await Repo.putMany('batches', batches);
 
@@ -718,46 +823,59 @@ async function seedUsers(){
   await Repo.putMany('users', out);
 }
 
-/* ---------------- 5. AUTHENTICATION & ROLES ---------------- */
+/* ---------------- 4. TAX & DISCOUNT ENGINE ---------------- */
+function calculateTransactionTotals(lines, custType, vatSettings) {
+    let subtotal = 0, vatableSales = 0, vatAmount = 0, vatExemptSales = 0, seniorPwdDiscount = 0, finalAmount = 0;
+    const isDiscountedCust = custType === 'SENIOR' || custType === 'PWD';
+    const rate = num(vatSettings.rate) / 100;
+    const isInclusive = vatSettings.inclusive;
+
+    lines.forEach(l => {
+        const p = prod(l.product_id);
+        const lineGross = num(l.qty) * num(l.unit_price);
+        subtotal += lineGross;
+        
+        // Product eligible by default unless explicitly false
+        const isEligible = isDiscountedCust && (p && p.seniorPwdEligible !== false);
+
+        if (isEligible) {
+            const vatExempt = isInclusive ? lineGross / (1 + rate) : lineGross;
+            const discount = vatExempt * 0.20;
+            const lineFinal = vatExempt - discount;
+
+            vatExemptSales += vatExempt;
+            seniorPwdDiscount += discount;
+            finalAmount += lineFinal;
+        } else {
+            const vatable = isInclusive ? lineGross / (1 + rate) : lineGross;
+            const vat = isInclusive ? lineGross - vatable : lineGross * rate;
+
+            vatableSales += vatable;
+            vatAmount += vat;
+            finalAmount += lineGross;
+        }
+    });
+
+    return {
+        subtotal: round2(subtotal),
+        vatableSales: round2(vatableSales),
+        vatAmount: round2(vatAmount),
+        vatExemptSales: round2(vatExemptSales),
+        seniorPwdDiscount: round2(seniorPwdDiscount),
+        total: round2(finalAmount)
+    };
+}
+
+/* ---------------- 5. AUTHENTICATION & SESSION ---------------- */
 const ROLE_PERMS = {
   'Administrator': ['*'],
   'Cashier':       ['dashboard','pos','receipts','products.view'],
   'Inventory Staff':['dashboard','products','products.view','inventory','inventory.adjust','procurement','orders'],
   'Manager':       ['dashboard','pos','analytics','products.view','receipts','receipts.void','inventory','inventory.adjust','procurement','orders']
 };
+let ME = null;
 const can = p => !!ME && (ROLE_PERMS[ME.role]?.includes('*') || ROLE_PERMS[ME.role]?.includes(p));
 const canNegative = () => ME && (ME.role === 'Administrator' || ME.role === 'Manager');
-
-async function login(username, password){
-  const u = S.users.find(x => x.username.toLowerCase() === username.trim().toLowerCase() && x.status === 'active');
-  if (!u) return null;
-  const h = await hashPw(password, u.pass_salt);
-  return h === u.pass_hash ? u : null;
-}
-function startSession(u){
-  ME = u;
-  sessionStorage.setItem('mp_session', u.id);
-  $('#login').style.display = 'none';
-  $('#app').classList.add('on');
-  $('#whoName').textContent = u.name;
-  $('#whoRole').textContent = u.role;
-  renderNav();
-  const first = NAV.find(i => i.key && can(i.perm));
-  go(can('pos') && u.role === 'Cashier' ? 'pos' : (first ? first.key : 'dashboard'));
-  audit('Signed in', u.role);
-}
-function logout(){
-  audit('Signed out', '');
-  ME = null; sessionStorage.removeItem('mp_session');
-  $('#app').classList.remove('on');
-  $('#login').style.display = 'grid';
-  $('#lgPass').value = ''; $('#lgErr').textContent = '';
-  $('#lgUser').focus();
-}
-async function audit(action, detail){
-  const rec = { id:uid(), at:new Date().toISOString(), user_name:ME ? ME.name : 'System', action, detail:String(detail || '') };
-  S.audit.push(rec); await Repo.put('audit', rec);
-}
 
 const NAV = [
   { key:'dashboard',   label:'Dashboard',   ic:'\u25A6', perm:'dashboard' },
@@ -804,6 +922,8 @@ function renderNav(){
   });
 }
 
+let CURRENT = null;
+const VIEWS = {};
 function go(key){
   const item = NAV.find(i => i.key === key);
   if (item && !can(item.perm)){ toast('Your role does not have access to that section.', 'bad'); return; }
@@ -813,85 +933,112 @@ function go(key){
   $$('#nav button').forEach(b => b.classList.toggle('sel', b.dataset.page === key));
   const [t, s] = PAGE_TITLES[key] || [key, ''];
   $('#pgTitle').textContent = t; $('#pgSub').textContent = s;
-  try { VIEWS[key] && VIEWS[key](); } catch (err){ console.error(err); toast('Error drawing page.', 'bad'); }
+  try { VIEWS[key] && VIEWS[key](); } catch (err){ console.error(err); toast('Something failed while drawing this page. Check the console.', 'bad'); }
   window.scrollTo(0,0);
 }
 function refresh(){ if (CURRENT) VIEWS[CURRENT] && VIEWS[CURRENT](); }
 
-/* ---------------- 6. TAX / DISCOUNT ENGINE ---------------- */
-// Centralized calculation per instructions
-function calculateTransactionTotals(lines, custType, isVatInclusive, vatRatePct) {
-    let subtotal = 0, vatableSales = 0, vatAmount = 0, vatExemptSales = 0, seniorPwdDiscount = 0, finalAmount = 0;
-    let requiresRx = false;
-    const rate = vatRatePct / 100;
-    const isSeniorPwd = custType === 'SENIOR' || custType === 'PWD';
-
-    lines.forEach(l => {
-        const lineGross = num(l.qty) * num(l.unit_price);
-        subtotal += lineGross;
-        if(l.rx_required) requiresRx = true;
-        
-        const p = prod(l.product_id);
-        const isEligible = isSeniorPwd && p && (p.seniorPwdEligible !== false);
-
-        if (isEligible) {
-            // Step 1: VAT-Exempt Price
-            const vatExempt = isVatInclusive ? lineGross / (1 + rate) : lineGross;
-            // Step 2: 20% Discount
-            const discount = vatExempt * 0.20;
-            // Step 3: Final Amount
-            const lineFinal = vatExempt - discount;
-
-            vatExemptSales += vatExempt;
-            seniorPwdDiscount += discount;
-            finalAmount += lineFinal;
-        } else {
-            const vatable = isVatInclusive ? lineGross / (1 + rate) : lineGross;
-            const vat = isVatInclusive ? lineGross - vatable : lineGross * rate;
-
-            vatableSales += vatable;
-            vatAmount += vat;
-            finalAmount += lineGross;
-        }
-    });
-
-    return { 
-        subtotal: round2(subtotal), 
-        vatableSales: round2(vatableSales), 
-        vatAmount: round2(vatAmount), 
-        vatExemptSales: round2(vatExemptSales), 
-        seniorPwdDiscount: round2(seniorPwdDiscount), 
-        total: round2(finalAmount),
-        requiresRx
-    };
+async function login(username, password){
+  const u = S.users.find(x => x.username.toLowerCase() === username.trim().toLowerCase() && x.status === 'active');
+  if (!u) return null;
+  const h = await hashPw(password, u.pass_salt);
+  return h === u.pass_hash ? u : null;
+}
+function startSession(u){
+  ME = u;
+  sessionStorage.setItem('mp_session', u.id);
+  $('#login').style.display = 'none';
+  $('#app').classList.add('on');
+  $('#whoName').textContent = u.name;
+  $('#whoRole').textContent = u.role;
+  renderNav();
+  const first = NAV.find(i => i.key && can(i.perm));
+  go(can('pos') && u.role === 'Cashier' ? 'pos' : (first ? first.key : 'dashboard'));
+  audit('Signed in', u.role);
+}
+function logout(){
+  audit('Signed out', '');
+  ME = null; sessionStorage.removeItem('mp_session');
+  $('#app').classList.remove('on');
+  $('#login').style.display = 'grid';
+  $('#lgPass').value = ''; $('#lgErr').textContent = '';
+  $('#lgUser').focus();
+}
+async function audit(action, detail){
+  const rec = { id:uid(), at:new Date().toISOString(), user_name:ME ? ME.name : 'System', action, detail:String(detail || '') };
+  S.audit.push(rec); await Repo.put('audit', rec);
 }
 
-/* ---------------- 7. DOCTORS / PRESCRIPTIONS ---------------- */
-function addDoctorModal(onSuccess) {
-    modal({
-        title: 'Add Doctor', width: 'narrow',
-        body: `
-            <label class="f"><span>Doctor Name *</span><input class="inp" id="dName" placeholder="Juan Dela Cruz"></label>
-            <label class="f"><span>PRC License Number *</span><input class="inp" id="dLic"></label>
-            <div id="dErr"></div>
-        `,
-        footer: `<button class="btn" data-close>Cancel</button><button class="btn pri" id="dSave">Save Doctor</button>`,
-        onOpen: (root, close) => {
-            root.querySelector('#dSave').onclick = async () => {
-                const name = root.querySelector('#dName').value.trim();
-                const prc = root.querySelector('#dLic').value.trim();
-                if(!name || !prc) { root.querySelector('#dErr').innerHTML = `<div class="banner bad">Name and PRC are required.</div>`; return; }
-                const doc = { id: uid(), name, prcLicenseNo: prc, demo: false };
-                await Repo.put('doctors', doc);
-                S.doctors.push(doc);
-                close();
-                if(onSuccess) onSuccess(doc);
-            }
-        }
-    });
+/* ---------------- 6. DASHBOARD ---------------- */
+function salesBetween(from, to){
+  const a = +new Date(from), b = +new Date(to);
+  return S.sales.filter(s => s.status === 'completed' && +new Date(s.transaction_date) >= a && +new Date(s.transaction_date) <= b);
+}
+function todaySales(){
+  const start = new Date(); start.setHours(0,0,0,0);
+  const end = new Date(); end.setHours(23,59,59,999);
+  return salesBetween(start, end);
+}
+const sum = (arr, f) => arr.reduce((a, x) => a + num(f(x)), 0);
+const inventoryValue = () => sum(S.products.filter(p => p.status === 'active'), p => num(p.current_stock) * num(p.cost_price));
+
+VIEWS.dashboard = function(){
+  const t = todaySales();
+  const revenue = sum(t, s => s.total);
+  const itemsToday = S.sale_items.filter(si => t.some(s => s.id === si.sale_id)).reduce((a,x) => a + num(x.quantity), 0);
+  const active = S.products.filter(p => p.status === 'active');
+  const low = active.filter(p => { const st = stockStatus(p).key; return st === 'low' || st === 'critical'; });
+  const out = active.filter(p => num(p.current_stock) <= 0);
+  const expiring = active.map(p => ({ p, e:expiryInfo(p) })).filter(x => x.e && x.e.days <= 90);
+  const expired = expiring.filter(x => x.e.days < 0);
+  const pendingPOs = S.purchase_orders.filter(p => p.status === 'draft' || p.status === 'sent');
+  const recent = [...S.sales].sort((a,b) => b.transaction_date.localeCompare(a.transaction_date)).slice(0,8);
+
+  const top = topProducts(D.addDays(new Date(), -30), new Date(), 5);
+
+  $('#v-dashboard').innerHTML = `
+    ${expired.length ? `<div class="banner bad" style="margin-bottom:14px"><span>\u26A0</span><div><b>${expired.length} batch${expired.length>1?'es have':' has'} expired.</b> Pull these from the shelf before the next sale.</div></div>` : ''}
+    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); margin-bottom:16px">
+      <div class="stat hi"><div class="k">Sales today</div><div class="v">${peso(revenue)}</div><div class="d">${t.length} transaction${t.length===1?'':'s'}</div></div>
+      <div class="stat"><div class="k">Items sold today</div><div class="v">${qtyFmt(itemsToday)}</div><div class="d">Average sale ${peso(t.length ? revenue/t.length : 0)}</div></div>
+      <div class="stat"><div class="k">Inventory value</div><div class="v">${peso(inventoryValue())}</div><div class="d">At supplier cost</div></div>
+      <div class="stat ${low.length?'warn':''}"><div class="k">Needs reordering</div><div class="v">${low.length}</div><div class="d">${out.length} out of stock</div></div>
+      <div class="stat ${expiring.length?'warn':''}"><div class="k">Expiring \u2264 90 days</div><div class="v">${expiring.length}</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)">
+      <div class="card">
+        <div class="hd"><h3>Recent transactions</h3></div>
+        <div class="tbl-wrap"><table class="tbl">
+          <thead><tr><th>Receipt</th><th>Time</th><th>Payment</th><th class="num">Total</th></tr></thead>
+          <tbody>${recent.length ? recent.map(s => `<tr class="clickable" data-sale="${s.id}">
+            <td class="mono">${esc(s.receipt_number)}${s.status==='voided'?' <span class="chip bad">Void</span>':''}</td>
+            <td>${D.dt(s.transaction_date)}</td><td>${esc(s.payment_method)}</td>
+            <td class="num">${peso(s.total)}</td></tr>`).join('')
+            : `<tr><td colspan="4"><div class="empty"><div class="big">No sales recorded yet</div></div></td></tr>`}</tbody>
+        </table></div>
+      </div>
+    </div>`;
+
+  $$('#v-dashboard [data-sale]').forEach(r => r.onclick = () => { if (can('receipts')){ go('receipts'); setTimeout(() => openReceipt(r.dataset.sale), 60); } });
+};
+
+function topProducts(from, to, limit){
+  const ids = new Set(salesBetween(from, to).map(s => s.id));
+  const agg = {};
+  S.sale_items.filter(si => ids.has(si.sale_id)).forEach(si => {
+    const k = si.product_id || si.name;
+    agg[k] = agg[k] || { name:si.name, qty:0, revenue:0, product_id:si.product_id };
+    agg[k].qty += num(si.quantity); agg[k].revenue += num(si.subtotal);
+  });
+  return Object.values(agg).sort((a,b) => b.revenue - a.revenue).slice(0, limit || 10);
 }
 
-/* ---------------- 8. POINT OF SALE & CART ---------------- */
+/* ---------------- 7. POINT OF SALE ---------------- */
+const CART = { lines:[] };
+let POS_FILTER = { q:'', cat:'' };
+let SUGG_INDEX = -1;
+let LAST_SALE = null;
+
 function searchProducts(q, { includeArchived = false, limit = 60 } = {}){
   const t = q.trim().toLowerCase();
   let list = S.products.filter(p => includeArchived || p.status === 'active');
@@ -936,6 +1083,7 @@ VIEWS.pos = function(){
       </div>
       <div class="prod-grid" id="posGrid"></div>
     </section>
+
     <aside class="cart">
       <div class="ch"><h3>Current sale</h3><span class="chip neutral" id="cartCount">0 items</span>
         <button class="btn sm ghost" id="cartClear" title="Clear the cart (Esc)">Clear</button></div>
@@ -947,7 +1095,8 @@ VIEWS.pos = function(){
   $('#posSearch').oninput = e => { POS_FILTER.q = e.target.value; drawSuggestions(); drawGrid(); };
   $('#posSearch').onkeydown = suggKeys;
   $('#posSearch').onblur = () => setTimeout(() => { const s = $('#posSugg'); if (s) s.hidden = true; }, 160);
-  $('#posBarcode').onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); handleBarcode(e.target.value); e.target.value = ''; } };   $$('#v-pos [data-cat]').forEach(b => b.onclick = () => { POS_FILTER.cat = b.dataset.cat; VIEWS.pos(); $('#posSearch').focus(); });
+  $('#posBarcode').onkeydown = e => { if (e.key === 'Enter'){ e.preventDefault(); handleBarcode(e.target.value); e.target.value = ''; } };
+  $$('#v-pos [data-cat]').forEach(b => b.onclick = () => { POS_FILTER.cat = b.dataset.cat; VIEWS.pos(); $('#posSearch').focus(); });
   $('#cartClear').onclick = clearCart;
   drawGrid(); drawCart();
   setTimeout(() => $('#posBarcode') && $('#posBarcode').focus(), 40);
@@ -997,7 +1146,8 @@ function drawSuggestions(){
   $$('.s-item', box).forEach(it => it.onmousedown = e => { e.preventDefault(); addToCart(it.dataset.pick, 1); });
 }
 function suggKeys(e){
-  const box = $('#posSugg'); if (!box \vert{}\vert{} box.hidden) return;   const items = $$('.s-item', box);
+  const box = $('#posSugg'); if (!box || box.hidden) return;
+  const items = $$('.s-item', box);
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp'){
     e.preventDefault();
     SUGG_INDEX = e.key === 'ArrowDown' ? Math.min(SUGG_INDEX+1, items.length-1) : Math.max(SUGG_INDEX-1, 0);
@@ -1027,14 +1177,18 @@ function addToCart(pid, qty, opts = {}){
   if (num(p.current_stock) <= 0){ toast(`${p.name} is out of stock.`, 'bad'); return; }
   const existing = CART.lines.find(l => l.product_id === pid);
   const wanted = (existing ? existing.qty : 0) + qty;
-  if (wanted > num(p.current_stock)){ toast(`Only ${qtyFmt(p.current_stock)} ${p.unit} of ${p.name} on hand.`, 'warn'); return; }
-  if (existing) {
+  if (wanted > num(p.current_stock)){
+    toast(`Only ${qtyFmt(p.current_stock)} ${p.unit} of ${p.name} on hand.`, 'warn');
+    return;
+  }
+  if (existing){
     existing.qty = wanted;
   } else {
-    CART.lines.push({ product_id:p.id, name:p.name, generic_name:p.generic_name, barcode:p.barcode, sku:p.sku, unit:p.unit, unit_price:num(p.selling_price), qty, rx_required:!!p.rx_required });
+    CART.lines.push({ product_id:p.id, name:p.name, generic_name:p.generic_name, barcode:p.barcode, sku:p.sku,
+      unit:p.unit, unit_price:num(p.selling_price), qty, rx_required:!!p.rx_required });
   }
   POS_FILTER.q = '';
-  const sb = $('#posSearch'); if (sb) sb.value = '';
+  const sb = $('#posSearch'); if (sb){ sb.value = ''; }
   const sg = $('#posSugg'); if (sg) sg.hidden = true;
   drawGrid(); drawCart(opts.flash ? pid : null);
   const bc = $('#posBarcode'); if (bc) bc.focus();
@@ -1051,13 +1205,13 @@ function drawCart(flashId){
       return `<div class="citem ${flashId===l.product_id?'flash':''}" data-i="${i}">
         <div class="l1">
           <div class="nm">${esc(l.name)}${l.rx_required?' <span class="chip rx">Rx</span>':''}
-            <div class="meta">${esc(l.generic_name||'')} \u00B7 ${peso(l.unit_price)} / ${esc(l.unit)}</div></div>
+            <div class="meta">${esc(l.generic_name||'')} \u00B7 ${peso(l.unit_price)} / ${esc(l.unit)} \u00B7 shelf ${esc(locName(p?.location_id))}</div></div>
           <button class="x" data-rm="${i}" title="Remove">&times;</button>
         </div>
         <div class="l2">
-          <div class="qty"><button data-dec="${i}">\u2212</button>
-            <input type="number" min="1" value="${l.qty}" data-q="${i}">
-            <button data-inc="${i}">+</button></div>
+          <div class="qty"><button data-dec="${i}" aria-label="Less">\u2212</button>
+            <input type="number" min="1" value="${l.qty}" data-q="${i}" aria-label="Quantity">
+            <button data-inc="${i}" aria-label="More">+</button></div>
           <span class="tiny muted">${qtyFmt(p ? p.current_stock : 0)} on hand</span>
           <span class="amt">${peso(l.qty * l.unit_price)}</span>
         </div>
@@ -1078,7 +1232,6 @@ function setQty(i, q){
   if (p && q > num(p.current_stock)){ toast(`Only ${qtyFmt(p.current_stock)} ${p.unit} on hand.`, 'warn'); q = num(p.current_stock); }
   l.qty = q; drawCart(); drawGrid();
 }
-
 function clearCart(){
   if (!CART.lines.length) return;
   CART.lines = [];
@@ -1087,15 +1240,16 @@ function clearCart(){
 
 function drawTotals(){
   const box = $('#cartTotals'); if (!box) return;
-  const subtotal = round2(CART.lines.reduce((a,l) => a + num(l.qty) * num(l.unit_price), 0));
+  const totals = calculateTransactionTotals(CART.lines, 'REGULAR', S.settings.vat);
+  
   box.innerHTML = `
-    <div class="trow grand"><span>Subtotal</span><span>${peso(subtotal)}</span></div>
-    <button class="btn pri block lg" id="payBtn" ${CART.lines.length?'':'disabled'} style="margin-top:12px">Checkout <span class="keyhint" style="border-color:rgba(255,255,255,.4); color:#fff">F4</span></button>
+    <div class="trow grand" style="border:none"><span>Total</span><span>${peso(totals.total)}</span></div>
+    <button class="btn pri block lg" id="payBtn" ${CART.lines.length?'':'disabled'} style="margin-top:10px">Checkout <span class="keyhint" style="border-color:rgba(255,255,255,.4); color:#fff">F4</span></button>
   `;
   $('#payBtn').onclick = showCheckoutModal;
 }
 
-/* ---------------- 9. CHECKOUT & SALE EXECUTION ---------------- */
+/* ---------------- 8. CHECKOUT & SALE LOGIC ---------------- */
 function allocateFEFO(pid, qty){
   const today = D.today();
   const lots = batchesOf(pid);
@@ -1112,170 +1266,158 @@ function allocateFEFO(pid, qty){
 
 function showCheckoutModal() {
   if (!CART.lines.length) return;
-  const totals = calculateTransactionTotals(CART.lines, 'REGULAR', S.settings.vat.inclusive, S.settings.vat.rate);
-  const docSelect = `<option value="">-- Select Doctor --</option>` + S.doctors.map(d => `<option value="${d.id}">Dr. ${esc(d.name)} (PRC: ${esc(d.prcLicenseNo)})</option>`).join('');
+  const initialTotals = calculateTransactionTotals(CART.lines, 'REGULAR', S.settings.vat);
+  const requiresRx = CART.lines.some(l => l.rx_required);
+  
+  const docSelectOpts = S.doctors.map(d => `<option value="${d.id}">Dr. ${esc(d.name)} (PRC: ${esc(d.prcLicenseNo)})</option>`).join('');
 
   modal({
-      title: 'Checkout',
-      width: 'narrow',
-      body: `
-          <div class="fgrid">
-              <label class="f"><span>Customer Type</span>
-                  <select class="inp" id="coCustType">
-                      <option value="REGULAR">Regular</option>
-                      <option value="SENIOR">Senior Citizen</option>
-                      <option value="PWD">PWD</option>
-                  </select>
-              </label>
-              <label class="f full" id="coIdWrap" hidden>
-                  <span>ID Number</span><input class="inp" id="coIdNum" placeholder="OSCA / PWD ID">
-              </label>
-              ${totals.requiresRx ? `
-              <label class="f full" style="background:var(--amber-wash); padding:10px; border-radius:6px; border:1px solid var(--amber)">
-                  <span style="color:var(--amber)">Prescription Required</span>
-                  <select class="inp" id="coDoc">${docSelect}</select>
-                  <div style="margin-top:5px; text-align:right"><button class="btn sm" id="coNewDoc">Add Doctor</button></div>
-              </label>
-              ` : ''}
-              <label class="f"><span>Payment Method</span>
-                  <select class="inp" id="coPayMode">
-                      <option value="Cash">Cash</option><option value="GCash">GCash</option>
-                      <option value="Maya">Maya</option><option value="Bank Transfer">Bank Transfer</option>
-                  </select>
-              </label>
-              <label class="f" id="coTendWrap"><span>Amount Tendered</span><input class="inp num" type="number" id="coTend" placeholder="0.00"></label>
-              <label class="f full" id="coRefWrap" hidden><span>Reference Number</span><input class="inp" id="coRef"></label>
-          </div>
-          <div style="margin-top:15px; padding:15px; background:var(--rule-2); border-radius:8px">
-              <div class="row" style="justify-content:space-between; margin-bottom:5px"><span>Subtotal:</span><span id="coSub">${peso(totals.subtotal)}</span></div>
-              <div class="row" style="justify-content:space-between; margin-bottom:5px; color:var(--leaf)" id="coDiscRow" hidden><span>Discount:</span><span id="coDisc"></span></div>
-              <div class="row" style="justify-content:space-between; font-size:18px; font-weight:700"><span>Amount Due:</span><span id="coDue">${peso(totals.total)}</span></div>
-              <div class="row" style="justify-content:space-between; margin-top:5px; color:var(--ink-2)"><span>Change:</span><span id="coChange">${peso(0)}</span></div>
-          </div>
-          <div id="coErr"></div>
-      `,
-      footer: `<button class="btn" data-close>Cancel</button><button class="btn pri" id="coConfirm">Confirm Sale</button>`,
-      onOpen: (root, close) => {
-          const updateTotals = () => {
-              const cType = root.querySelector('#coCustType').value;
-              root.querySelector('#coIdWrap').hidden = cType === 'REGULAR';
-              const t = calculateTransactionTotals(CART.lines, cType, S.settings.vat.inclusive, S.settings.vat.rate);
-              root.querySelector('#coDue').textContent = peso(t.total);
-              root.querySelector('#coSub').textContent = peso(t.subtotal);
-              
-              if (t.seniorPwdDiscount > 0) {
-                  root.querySelector('#coDiscRow').hidden = false;
-                  root.querySelector('#coDisc').textContent = `-${peso(t.seniorPwdDiscount)}`;
-              } else {
-                  root.querySelector('#coDiscRow').hidden = true;
-              }
+    title: 'Checkout', width: 'narrow',
+    body: `
+      <div class="fgrid">
+        <label class="f"><span>Customer Type</span>
+          <select class="inp" id="coCustType">
+            <option value="REGULAR">Regular</option>
+            <option value="SENIOR">Senior Citizen</option>
+            <option value="PWD">PWD</option>
+          </select>
+        </label>
+        <label class="f" id="coIdWrap" style="visibility:hidden"><span>ID Number</span><input class="inp" id="coIdNum" placeholder="OSCA / PWD ID"></label>
+        <label class="f full" style="margin-bottom:0"><span>Customer Name (optional)</span><input class="inp" id="coName" placeholder="Walk-in"></label>
+      </div>
 
-              const isCash = root.querySelector('#coPayMode').value === 'Cash';
-              const tendWrap = root.querySelector('#coTendWrap');
-              if(tendWrap) tendWrap.hidden = !isCash;
-              const refWrap = root.querySelector('#coRefWrap');
-              if(refWrap) refWrap.hidden = isCash;
+      ${requiresRx ? `
+      <div class="banner warn" style="margin:14px 0"><span>\u26A0</span><div><b>Prescription Required</b><br>Select or add prescribing doctor.</div></div>
+      <div class="fgrid">
+        <label class="f full" style="margin-bottom:0"><span>Doctor</span>
+          <select class="inp" id="coDocId">
+            <option value="">-- Select Doctor --</option>
+            ${docSelectOpts}
+          </select>
+        </label>
+      </div>` : ''}
 
-              const tend = num(root.querySelector('#coTend').value);
-              const changeEl = root.querySelector('#coChange');
-              if(changeEl) changeEl.textContent = isCash ? peso(Math.max(0, tend - t.total)) : peso(0);
-          };
+      <div style="background:var(--rule-2); padding:14px; border-radius:var(--r); margin:14px 0">
+        <div class="trow" style="color:var(--ink-2)"><span>Subtotal</span><span id="coSub">${peso(initialTotals.subtotal)}</span></div>
+        <div class="trow" id="coDiscRow" style="color:var(--leaf); display:none"><span>Discount</span><span id="coDisc"></span></div>
+        <div class="trow grand" style="border:none; margin:4px 0 0 0; padding:0"><span>Amount Due</span><span id="coDue">${peso(initialTotals.total)}</span></div>
+      </div>
 
-          root.addEventListener('input', updateTotals);
-          updateTotals();
-          
-          if (totals.requiresRx) {
-              root.querySelector('#coNewDoc').onclick = (e) => {
-                  e.preventDefault();
-                  addDoctorModal((newDoc) => {
-                      const sel = root.querySelector('#coDoc');
-                      sel.innerHTML += `<option value="${newDoc.id}" selected>Dr. ${esc(newDoc.name)} (PRC: ${esc(newDoc.prcLicenseNo)})</option>`;
-                  });
-              };
-          }
+      <div class="fgrid">
+        <label class="f"><span>Payment Method</span>
+          <select class="inp" id="coPayMode">
+            <option>Cash</option><option>GCash</option><option>Maya</option><option>Bank Transfer</option>
+          </select>
+        </label>
+        <label class="f" id="coTendWrap"><span>Amount Tendered (₱)</span><input class="inp num" type="number" min="0" step="0.01" id="coTend" placeholder="0.00" style="font-size:16px; font-weight:600"></label>
+        <label class="f full" id="coRefWrap" style="display:none"><span>Reference Number *</span><input class="inp" id="coRef" placeholder="e.g. GCash Ref"></label>
+      </div>
+      <div class="trow" id="coChangeRow" style="font-size:15px; font-weight:600; color:var(--ink)"><span>Change</span><span id="coChange">${peso(0)}</span></div>
+      <div id="coErr"></div>
+    `,
+    footer: `<button class="btn" data-close>Cancel</button><button class="btn pri" id="coConfirm">Confirm Sale</button>`,
+    onOpen: (root, close) => {
+      const g = q => root.querySelector(q);
+      
+      const updateForm = () => {
+        const cType = g('#coCustType').value;
+        const isCash = g('#coPayMode').value === 'Cash';
+        
+        g('#coIdWrap').style.visibility = cType === 'REGULAR' ? 'hidden' : 'visible';
+        g('#coTendWrap').style.display = isCash ? 'block' : 'none';
+        g('#coChangeRow').style.display = isCash ? 'flex' : 'none';
+        g('#coRefWrap').style.display = isCash ? 'none' : 'block';
 
-          root.querySelector('#coConfirm').onclick = async () => {
-              const cType = root.querySelector('#coCustType').value;
-              const cId = root.querySelector('#coIdNum')?.value.trim();
-              const payMode = root.querySelector('#coPayMode').value;
-              const tend = num(root.querySelector('#coTend').value);
-              const ref = root.querySelector('#coRef')?.value.trim();
-              const docId = totals.requiresRx ? root.querySelector('#coDoc').value : null;
+        const t = calculateTransactionTotals(CART.lines, cType, S.settings.vat);
+        g('#coSub').textContent = peso(t.subtotal);
+        g('#coDue').textContent = peso(t.total);
+        if(t.seniorPwdDiscount > 0) {
+            g('#coDiscRow').style.display = 'flex';
+            g('#coDisc').textContent = `-${peso(t.seniorPwdDiscount)}`;
+        } else {
+            g('#coDiscRow').style.display = 'none';
+        }
 
-              const errs = [];
-              if (cType !== 'REGULAR' && !cId) errs.push(`${cType} ID Number is required.`);
-              if (totals.requiresRx && !docId) errs.push('Prescription required: Please select a doctor.');
-              
-              const t = calculateTransactionTotals(CART.lines, cType, S.settings.vat.inclusive, S.settings.vat.rate);
-              if (payMode === 'Cash' && tend < t.total) errs.push('Amount tendered is less than the total due.');
-              if (payMode !== 'Cash' && !ref) errs.push('Reference number is required for digital payments.');
+        const tend = num(g('#coTend').value);
+        if(isCash) { g('#coChange').textContent = peso(Math.max(0, tend - t.total)); }
+      };
 
-              if (errs.length) {
-                  root.querySelector('#coErr').innerHTML = `<div class="banner bad" style="margin-top:10px">\u26A0<div>${errs.map(esc).join('<br>')}</div></div>`;
-                  return;
-              }
+      g('#coCustType').onchange = updateForm;
+      g('#coPayMode').onchange = updateForm;
+      g('#coTend').oninput = updateForm;
 
-              close();
-              await executeSale({ cType, cId, payMode, tend, ref, docId, totals: t });
-          };
-      }
+      g('#coConfirm').onclick = async () => {
+        const cType = g('#coCustType').value;
+        const cId = g('#coIdNum') ? g('#coIdNum').value.trim() : '';
+        const cName = g('#coName').value.trim();
+        const payMode = g('#coPayMode').value;
+        const tend = num(g('#coTend').value);
+        const ref = g('#coRef').value.trim();
+        const docId = requiresRx ? g('#coDocId').value : null;
+
+        const errs = [];
+        if(cType !== 'REGULAR' && !cId) errs.push(`ID Number is required for ${cType}.`);
+        if(requiresRx && !docId) errs.push('A prescribing doctor must be selected.');
+        
+        const t = calculateTransactionTotals(CART.lines, cType, S.settings.vat);
+        
+        if(payMode === 'Cash' && tend < t.total) errs.push('Amount tendered is insufficient.');
+        if(payMode !== 'Cash' && !ref) errs.push('Reference number is required for digital payments.');
+
+        if(errs.length){ g('#coErr').innerHTML = `<div class="banner bad" style="margin-top:10px">\u26A0<div>${errs.map(esc).join('<br>')}</div></div>`; return; }
+
+        await completeSale({ cType, cId, cName, payMode, tend, ref, docId, t });
+        close();
+      };
+    }
   });
 }
 
-async function executeSale({ cType, cId, payMode, tend, ref, docId, totals }) {
+async function completeSale({ cType, cId, cName, payMode, tend, ref, docId, t }){
   for (const l of CART.lines){
-      const p = prod(l.product_id);
-      if (!p){ toast(`${l.name} is no longer in the catalogue.`, 'bad'); return; }
-      if (l.qty > num(p.current_stock)){ toast(`Not enough stock of ${p.name}.`, 'bad'); return; }
-      const a = allocateFEFO(p.id, l.qty);
-      if (a.shortfall > 0 && a.expiredBlocked > 0){
-          toast(`${p.name}: the remaining stock is expired and cannot be sold.`, 'bad'); return;
-      }
-      l._alloc = a.alloc;
+    const p = prod(l.product_id);
+    if (!p){ toast(`${l.name} is no longer in the catalogue.`, 'bad'); return; }
+    if (l.qty > num(p.current_stock)){ toast(`Not enough stock of ${p.name}.`, 'bad'); return; }
+    const a = allocateFEFO(p.id, l.qty);
+    if (a.shortfall > 0 && a.expiredBlocked > 0){
+      toast(`${p.name}: remaining stock is expired and cannot be sold.`, 'bad'); return;
+    }
+    l._alloc = a.alloc;
   }
 
   const now = new Date().toISOString();
   const txnNo = nextNumber('txn'), orNo = nextNumber('receipt');
   const saleId = uid();
   
-  const sale = {
-      id: saleId, transaction_number: txnNo, receipt_number: orNo, transaction_date: now,
-      subtotal: totals.subtotal, 
-      vatableSales: totals.vatableSales,
-      vatAmount: totals.vatAmount,
-      vatExemptSales: totals.vatExemptSales,
-      seniorPwdDiscount: totals.seniorPwdDiscount,
-      total: totals.total,
-      discount: totals.seniorPwdDiscount,
-      discount_type: totals.seniorPwdDiscount > 0 ? `${cType} Discount 20%` : '',
-      amount_paid: payMode === 'Cash' ? round2(tend) : totals.total,
-      change: payMode === 'Cash' ? round2(tend - totals.total) : 0,
-      payment_method: payMode, payment_ref: ref, 
-      cashier_id: ME.id, cashier_name: ME.name,
-      customer_type: cType, customer_id: cId, customer_name: cId || '',
-      doctor_id: docId,
-      status: 'completed', demo: false
+  const sale = { 
+    id:saleId, transaction_number:txnNo, receipt_number:orNo, transaction_date:now,
+    subtotal:t.subtotal, vatableSales:t.vatableSales, vatAmount:t.vatAmount, vatExemptSales:t.vatExemptSales,
+    discount:t.seniorPwdDiscount, discount_type:t.seniorPwdDiscount > 0 ? `${cType} 20%` : '', total:t.total,
+    amount_paid: payMode === 'Cash' ? round2(tend) : t.total,
+    change: payMode === 'Cash' ? round2(tend - t.total) : 0,
+    payment_method:payMode, payment_ref:ref, cashier_id:ME.id, cashier_name:ME.name,
+    customer_type:cType, customer_id:cId, customer_name:cName, doctor_id:docId,
+    status:'completed', demo:false 
   };
 
   const items = CART.lines.map(l => ({ 
-      id:uid(), sale_id:saleId, product_id:l.product_id, name:l.name,
-      generic_name:l.generic_name, barcode:l.barcode, quantity:l.qty, unit_price:l.unit_price,
-      subtotal: round2(l.qty * l.unit_price),
-      batch_alloc:l._alloc || [], rx_required: l.rx_required, transaction_date:now 
+    id:uid(), sale_id:saleId, product_id:l.product_id, name:l.name,
+    generic_name:l.generic_name, barcode:l.barcode, quantity:l.qty, unit_price:l.unit_price,
+    subtotal:round2(l.qty * l.unit_price), batch_alloc:l._alloc || [], rx_required:l.rx_required, transaction_date:now 
   }));
-  
   const receipt = { id:uid(), receipt_number:orNo, sale_id:saleId, printed_at:now, print_count:0 };
 
   const movements = [], productPatches = [], batchPatches = [];
   CART.lines.forEach(l => {
-      const p = prod(l.product_id);
-      const prev = num(p.current_stock), next = prev - l.qty;
-      productPatches.push({ ...p, current_stock:next, updated_at:now });
-      movements.push({ id:uid(), product_id:p.id, movement_type:'Sale', quantity:-l.qty, previous_stock:prev, new_stock:next, reference_number:txnNo, reason:`Sold on ${orNo}`, user_id:ME.id, user_name:ME.name, created_at:now });
-      (l._alloc || []).forEach(a => {
-          const b = byId(S.batches, a.batch_id);
-          if (b) batchPatches.push({ ...b, qty: num(b.qty) - a.qty });
-      });
+    const p = prod(l.product_id);
+    const prev = num(p.current_stock), next = prev - l.qty;
+    productPatches.push({ ...p, current_stock:next, updated_at:now });
+    movements.push({ id:uid(), product_id:p.id, movement_type:'Sale', quantity:-l.qty, previous_stock:prev, new_stock:next,
+      reference_number:txnNo, reason:`Sold on ${orNo}`, user_id:ME.id, user_name:ME.name, created_at:now });
+    (l._alloc || []).forEach(a => {
+      const b = byId(S.batches, a.batch_id);
+      if (b) batchPatches.push({ ...b, qty: num(b.qty) - a.qty });
+    });
   });
 
   try {
@@ -1300,76 +1442,84 @@ async function executeSale({ cType, cId, payMode, tend, ref, docId, totals }) {
   productPatches.forEach(p => { const i = S.products.findIndex(x => x.id === p.id); if (i > -1) S.products[i] = p; });
   batchPatches.forEach(b => { const i = S.batches.findIndex(x => x.id === b.id); if (i > -1) S.batches[i] = b; });
 
-  audit('Completed sale', `${orNo} \u00B7 ${peso(totals.total)}`);
+  audit('Completed sale', `${orNo} \u00B7 ${peso(t.total)}`);
   clearCart();
   LAST_SALE = saleId;
   showReceiptModal(saleId, { justSold:true });
 }
 
-/* ---------------- 10. RECEIPTS & PDF (Strict 57mm) ---------------- */
+/* ---------------- 9. RECEIPTS & PDF (57mm STRICT) ---------------- */
 function receiptHTML(saleId){
   const s = byId(S.sales, saleId); if (!s) return '<p>Receipt not found.</p>';
   const items = S.sale_items.filter(i => i.sale_id === saleId);
   const ph = S.settings.pharmacy;
+  const doc = s.doctor_id ? byId(S.doctors, s.doctor_id) : null;
+
   return `
     <div class="receipt-paper">
-      <div class="rt-center">
-        <h2 style="margin:0; font-size:12px">${esc(ph.name)}</h2>
-        <div style="font-size:9px">${esc(ph.tagline)}</div>
-        <div style="margin-top:2mm">${esc(ph.address)}</div>
-        <div>${esc(ph.phone)} ${ph.mobile ? ' / ' + esc(ph.mobile) : ''}</div>
-        ${ph.tin ? `<div>TIN ${esc(ph.tin)}</div>` : ''}
+      <div class="receipt-header">
+        <h2>${esc(ph.name)}</h2>
+        <div class="tagline">${esc(ph.tagline)}</div>
+        <div class="meta">${esc(ph.address)}</div>
+        <div class="meta">${esc(ph.phone)}${ph.mobile?' / '+esc(ph.mobile):''}</div>
+        ${ph.tin ? `<div class="meta">TIN: ${esc(ph.tin)}</div>` : ''}
+        ${ph.permit ? `<div class="meta">${esc(ph.permit)}</div>` : ''}
       </div>
-      <div class="rt-divider"></div>
-      <div class="rt-center rt-bold" style="font-size:11px;">SALES RECEIPT</div>
-      ${s.status === 'voided' ? '<div class="rt-center rt-bold" style="color:#d00">*** VOIDED ***</div>' : ''}
-      <div class="rt-divider"></div>
-      <table class="rt-table">
-        <tr><td>Receipt:</td><td class="rt-right">${esc(s.receipt_number)}</td></tr>
-        <tr><td>Txn:</td><td class="rt-right">${esc(s.transaction_number)}</td></tr>
-        <tr><td>Date:</td><td class="rt-right">${D.dt(s.transaction_date)}</td></tr>
-        <tr><td>Cashier:</td><td class="rt-right">${esc(s.cashier_name)}</td></tr>
-        ${s.customer_type && s.customer_type !== 'REGULAR' ? `<tr><td>Customer:</td><td class="rt-right">${esc(s.customer_type)} -${esc(s.customer_id)}</td></tr>` : ''}
-      </table>
-      <div class="rt-divider"></div>
-      <table class="rt-table">
+      <div class="receipt-divider"></div>
+      <div class="receipt-title">SALES RECEIPT</div>
+      ${s.status === 'voided' ? '<div class="receipt-title" style="color:red">*** VOIDED ***</div>' : ''}
+      <div class="receipt-divider"></div>
+      <div class="receipt-meta">
+        <table>
+          <tr><td>Receipt:</td><td class="r">${esc(s.receipt_number)}</td></tr>
+          <tr><td>Txn:</td><td class="r">${esc(s.transaction_number)}</td></tr>
+          <tr><td>Date:</td><td class="r">${D.dt(s.transaction_date)}</td></tr>
+          <tr><td>Cashier:</td><td class="r">${esc(s.cashier_name)}</td></tr>
+          ${s.customer_type && s.customer_type !== 'REGULAR' ? `
+            <tr><td>Customer:</td><td class="r">${esc(s.customer_name || s.customer_type)}</td></tr>
+            <tr><td>ID No:</td><td class="r">${esc(s.customer_id)}</td></tr>
+          ` : ''}
+        </table>
+      </div>
+      <div class="receipt-divider"></div>
+      <table class="receipt-item">
         ${items.map(i => `
-            <tr><td colspan="2" class="rt-bold" style="padding-top:1mm">${esc(i.name)}</td></tr>
-            <tr><td>${qtyFmt(i.quantity)} x${peso(i.unit_price)}</td><td class="rt-right">${peso(i.subtotal)}</td></tr>
+          <tr><td colspan="2"><span class="product-name">${esc(i.name)}</span></td></tr>
+          <tr><td>${qtyFmt(i.quantity)} x${peso(i.unit_price).replace('\u20B1','')}</td><td class="r">${peso(i.subtotal).replace('\u20B1','')}</td></tr>
         `).join('')}
       </table>
-      <div class="rt-divider"></div>
-      <table class="rt-table">
-        <tr><td>Subtotal</td><td class="rt-right">${peso(s.subtotal)}</td></tr>
-        <tr><td>VATable Sales</td><td class="rt-right">${peso(s.vatableSales || 0)}</td></tr>
-        <tr><td>VAT Amount</td><td class="rt-right">${peso(s.vatAmount || 0)}</td></tr>
-        ${s.customer_type && s.customer_type !== 'REGULAR' ? `
-            <tr><td>VAT-Exempt Sales</td><td class="rt-right">${peso(s.vatExemptSales)}</td></tr>
-            <tr><td>${s.customer_type} Discount</td><td class="rt-right">-${peso(s.seniorPwdDiscount)}</td></tr>
+      <div class="receipt-divider"></div>
+      <table class="receipt-total">
+        <tr><td>Subtotal</td><td class="r">${peso(s.subtotal).replace('\u20B1','')}</td></tr>
+        ${S.settings.vat.show ? `
+            <tr><td>VATable Sales</td><td class="r">${peso(s.vatableSales).replace('\u20B1','')}</td></tr>
+            <tr><td>VAT Amount</td><td class="r">${peso(s.vatAmount).replace('\u20B1','')}</td></tr>
+        ` : ''}
+        ${s.customer_type !== 'REGULAR' ? `
+            <tr><td>VAT-Exempt Sales</td><td class="r">${peso(s.vatExemptSales).replace('\u20B1','')}</td></tr>
+            <tr><td>${esc(s.customer_type)} Discount</td><td class="r">-${peso(s.discount).replace('\u20B1','')}</td></tr>
         ` : ''}
       </table>
-      <div class="rt-divider"></div>
-      <table class="rt-table" style="font-size:12px; font-weight:700">
-        <tr><td>TOTAL</td><td class="rt-right">${peso(s.total)}</td></tr>
+      <div class="receipt-divider"></div>
+      <table class="receipt-total">
+        <tr><td class="grand">TOTAL</td><td class="r grand">${peso(s.total)}</td></tr>
+        <tr><td style="padding-top:2mm">${esc(s.payment_method)}</td><td class="r" style="padding-top:2mm">${peso(s.amount_paid).replace('\u20B1','')}</td></tr>
+        ${s.payment_method === 'Cash' ? `<tr><td>Change</td><td class="r">${peso(s.change).replace('\u20B1','')}</td></tr>` : `<tr><td>Ref</td><td class="r">${esc(s.payment_ref)}</td></tr>`}
       </table>
-      <table class="rt-table" style="margin-top:2mm;">
-        <tr><td>${esc(s.payment_method)}</td><td class="rt-right">${peso(s.amount_paid)}</td></tr>
-        ${s.payment_method === 'Cash' ? `<tr><td>Change</td><td class="rt-right">${peso(s.change)}</td></tr>` : `<tr><td>Ref</td><td class="rt-right">${esc(s.payment_ref)}</td></tr>`}
-      </table>
-      ${s.doctor_id ? (() => {
-          const doc = byId(S.doctors, s.doctor_id);
-          if(!doc) return '';
-          return `<div class="rt-divider"></div>
-          <div class="rt-bold">PRESCRIPTION INFO</div>
-          <div>Dr. ${esc(doc.name)}</div>
-          <div>PRC: ${esc(doc.prcLicenseNo)}</div>`;
-      })() : ''}
-      <div class="rt-divider"></div>
-      <div class="rt-center" style="font-size:9px;">
+      ${doc ? `
+      <div class="receipt-divider"></div>
+      <div class="receipt-section">
+        <div class="receipt-section-title">PRESCRIPTION INFO</div>
+        <div>Dr. ${esc(doc.name)}</div>
+        <div>PRC Lic. No.: ${esc(doc.prcLicenseNo)}</div>
+      </div>` : ''}
+      <div class="receipt-divider"></div>
+      <div class="receipt-footer">
         <div>${esc(S.settings.receipt.footer)}</div>
         <div style="margin-top:1mm">${esc(S.settings.receipt.note)}</div>
       </div>
-    </div>`;
+    </div>
+  `;
 }
 
 function printDoc(html){
@@ -1378,61 +1528,54 @@ function printDoc(html){
 }
 
 async function generateReceiptPDF(saleId) {
-    const s = byId(S.sales, saleId);
-    if(!s) return;
+    const s = byId(S.sales, saleId); if(!s) return;
     const html = receiptHTML(saleId);
     
+    // Create hidden DOM element to measure true height
     const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.top = '-9999px';
-    container.style.left = '-9999px';
-    container.style.width = '57mm';
     container.innerHTML = html;
+    container.style.position = 'absolute'; container.style.top = '-9999px'; container.style.left = '-9999px';
+    container.style.width = '57mm';
     document.body.appendChild(container);
     
+    // Wait for Libre Franklin to load
     await document.fonts.ready;
     
     const paper = container.querySelector('.receipt-paper');
     const rect = paper.getBoundingClientRect();
-    
-    const heightMm = Math.max((rect.height * 0.264583) + 2, 30);
-    
+    const heightMm = (rect.height * 0.264583) + 2; // px to mm approx + 2mm buffer
+
     const opt = {
         margin: 0,
-        filename: `Magallanes_Receipt_${s.receipt_number}.pdf`,
+        filename: `${S.settings.pharmacy.name.replace(/\s+/g,'_')}_Receipt_${s.receipt_number}.pdf`,
         image: { type: 'jpeg', quality: 1.0 },
         html2canvas: { scale: 3, useCORS: true, logging: false },
-        jsPDF: { unit: 'mm', format: [57, heightMm], orientation: 'portrait' }
+        jsPDF: { unit: 'mm', format: [57, Math.max(heightMm, 30)], orientation: 'portrait' }
     };
     
-    html2pdf().set(opt).from(paper).save().then(() => {
-        container.remove();
-        toast('PDF downloaded.');
-    });
+    html2pdf().set(opt).from(paper).save().then(() => container.remove());
 }
 
 function showReceiptModal(saleId, { justSold = false } = {}){
   const s = byId(S.sales, saleId); if (!s) return;
   const m = modal({
     title: justSold ? `Sale complete — ${s.receipt_number}` : `Receipt ${s.receipt_number}`,
+    width: 'narrow',
     body: `
-      <div style="background:#f0f0f0; padding:15px; display:flex; justify-content:center; max-height:50vh; overflow-y:auto">
-        <div style="box-shadow:0 4px 10px rgba(0,0,0,0.1)">
-          ${receiptHTML(saleId)}
-        </div>
-      </div>
+      <div class="preview-paper thermal" id="rcptPrev"></div>
     `,
     footer: `<button class="btn" data-close>Close</button>
       ${justSold ? '<button class="btn" id="rNext">Next customer</button>' : ''}
-      <button class="btn" id="rPDF">Download PDF</button>
+      <button class="btn" id="rPdf">Download PDF</button>
       <button class="btn pri" id="rPrint">Print <span class="keyhint" style="border-color:rgba(255,255,255,.4);color:#fff">Ctrl+P</span></button>`,
     onOpen: (root, close) => {
+      root.querySelector('#rcptPrev').innerHTML = receiptHTML(saleId);
       root.querySelector('#rPrint').onclick = async () => {
         printDoc(receiptHTML(saleId));
         const r = S.receipts.find(x => x.sale_id === saleId);
-        if (r){ r.print_count = num(r.print_count)+1; r.printed_at = new Date().toISOString(); await Repo.put('receipts', r); }
+        if (r){ r.print_count = num(r.print_count) + 1; r.printed_at = new Date().toISOString(); await Repo.put('receipts', r); }
       };
-      root.querySelector('#rPDF').onclick = () => { generateReceiptPDF(saleId); };
+      root.querySelector('#rPdf').onclick = () => generateReceiptPDF(saleId);
       const nx = root.querySelector('#rNext');
       if (nx) nx.onclick = () => { close(); if (CURRENT === 'pos') $('#posBarcode')?.focus(); };
     }
@@ -1440,144 +1583,222 @@ function showReceiptModal(saleId, { justSold = false } = {}){
   return m;
 }
 
-/* ---------------- 11. DASHBOARD & VIEWS (abridged preservation) ---------------- */
-function salesBetween(from, to){
-  const a = +new Date(from), b = +new Date(to);
-  return S.sales.filter(s => s.status === 'completed' && +new Date(s.transaction_date) >= a && +new Date(s.transaction_date) <= b);
-}
-function todaySales(){
-  const start = new Date(); start.setHours(0,0,0,0);
-  const end = new Date(); end.setHours(23,59,59,999);
-  return salesBetween(start, end);
-}
-const sum = (arr, f) => arr.reduce((a, x) => a + num(f(x)), 0);
-const inventoryValue = () => sum(S.products.filter(p => p.status === 'active'), p => num(p.current_stock) * num(p.cost_price));
+/* ---------------- 10. RECEIPTS VIEW ---------------- */
+VIEWS.receipts = function(){
+  let list = S.sales.slice().sort((a,b) => b.transaction_date.localeCompare(a.transaction_date));
+  const q = RCPT_F.q.trim().toLowerCase();
+  if (q) list = list.filter(s => `${s.receipt_number} ${s.transaction_number} ${s.customer_name||''} ${s.cashier_name||''}`.toLowerCase().includes(q));
+  if (RCPT_F.method) list = list.filter(s => s.payment_method === RCPT_F.method);
+  if (RCPT_F.status) list = list.filter(s => s.status === RCPT_F.status);
+  if (RCPT_F.from) list = list.filter(s => s.transaction_date.slice(0,10) >= RCPT_F.from);
+  if (RCPT_F.to) list = list.filter(s => s.transaction_date.slice(0,10) <= RCPT_F.to);
 
-VIEWS.dashboard = function(){
-  const t = todaySales();
-  const revenue = sum(t, s => s.total);
-  const active = S.products.filter(p => p.status === 'active');
-  const low = active.filter(p => ['low','critical'].includes(stockStatus(p).key));
-  const recent = [...S.sales].sort((a,b) => b.transaction_date.localeCompare(a.transaction_date)).slice(0,8);
+  const pages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  RCPT_F.page = Math.min(RCPT_F.page, pages);
+  const slice = list.slice((RCPT_F.page-1)*PAGE_SIZE, RCPT_F.page*PAGE_SIZE);
+  const totalValue = sum(list.filter(s => s.status === 'completed'), s => s.total);
 
-  $('#v-dashboard').innerHTML = `
-    <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(178px,1fr)); margin-bottom:16px">
-      <div class="stat hi"><div class="k">Sales today</div><div class="v">${peso(revenue)}</div><div class="d">${t.length} transactions</div></div>
-      <div class="stat"><div class="k">Inventory value</div><div class="v">${peso(inventoryValue())}</div><div class="d">${active.length} active lines</div></div>
-      <div class="stat ${low.length?'warn':''}"><div class="k">Needs reordering</div><div class="v">${low.length}</div></div>
-    </div>
+  $('#v-receipts').innerHTML = `
+    <div class="card" style="margin-bottom:14px"><div class="bd" style="padding:13px 16px">
+      <div class="row wrap">
+        <input class="inp" id="rq" placeholder="Receipt no., transaction no., customer or cashier" value="${esc(RCPT_F.q)}" style="max-width:340px">
+        <select class="inp" id="rm" style="width:150px"><option value="">Any payment</option>
+          ${['Cash','GCash','Maya','Bank Transfer','Other'].map(m => `<option${RCPT_F.method===m?' selected':''}>${m}</option>`).join('')}</select>
+        <select class="inp" id="rs" style="width:140px"><option value="">Any status</option>
+          <option value="completed"${RCPT_F.status==='completed'?' selected':''}>Completed</option>
+          <option value="voided"${RCPT_F.status==='voided'?' selected':''}>Voided</option></select>
+        <input class="inp" id="rf" type="date" value="${RCPT_F.from}" style="width:150px" aria-label="From date">
+        <input class="inp" id="rt" type="date" value="${RCPT_F.to}" style="width:150px" aria-label="To date">
+        <button class="btn" id="rReset">Reset</button>
+        <div class="sp"></div>
+        <button class="btn" id="rExport">Export CSV</button>
+      </div>
+    </div></div>
+
     <div class="card">
-      <div class="hd"><h3>Recent transactions</h3></div>
+      <div class="hd"><h3>${list.length} receipt${list.length===1?'':'s'}</h3><span class="small muted">Completed value ${peso(totalValue)}</span></div>
       <div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th>Receipt</th><th>Time</th><th>Customer</th><th>Total</th></tr></thead>
-        <tbody>${recent.length ? recent.map(s => `<tr class="clickable" data-sale="${s.id}">
+        <thead><tr><th>Receipt</th><th>Transaction</th><th>Date &amp; time</th><th>Customer Type</th><th>Cashier</th><th>Payment</th><th class="num">Total</th><th></th></tr></thead>
+        <tbody>${slice.length ? slice.map(s => `<tr class="clickable" data-open="${s.id}">
           <td class="mono">${esc(s.receipt_number)}</td>
-          <td>${D.dt(s.transaction_date)}</td><td>${esc(s.customer_type||'REGULAR')}</td>
-          <td class="num">${peso(s.total)}</td></tr>`).join('')
-          : `<tr><td colspan="4"><div class="empty">No sales recorded yet.</div></td></tr>`}</tbody>
+          <td class="mono tiny">${esc(s.transaction_number)}</td>
+          <td>${D.dt(s.transaction_date)}</td>
+          <td>${esc(s.customer_type || 'REGULAR')}</td>
+          <td>${esc(s.cashier_name || '—')}</td>
+          <td>${esc(s.payment_method)}</td>
+          <td class="num">${peso(s.total)}</td>
+          <td>${s.status==='voided' ? '<span class="chip bad">Voided</span>' : '<span class="chip ok">Completed</span>'}${s.demo?'<span class="demo-tag">demo</span>':''}</td>
+        </tr>`).join('') : `<tr><td colspan="8"><div class="empty"><div class="big">No receipts match</div>Widen the dates or clear the filters.</div></td></tr>`}</tbody>
       </table></div>
+      ${pages > 1 ? `<div class="pager"><button class="btn sm" id="rPrev" ${RCPT_F.page<=1?'disabled':''}>Previous</button>
+        <span>Page ${RCPT_F.page} of${pages}</span>
+        <button class="btn sm" id="rNextP" ${RCPT_F.page>=pages?'disabled':''}>Next</button></div>` : ''}
     </div>`;
-  $$('#v-dashboard [data-sale]').forEach(r => r.onclick = () => showReceiptModal(r.dataset.sale));
+
+  const bind = (id, key, ev='input') => { const e = $('#'+id); if (e) e[ev==='input'?'oninput':'onchange'] = x => { RCPT_F[key] = x.target.value; RCPT_F.page = 1; preserveFocus(VIEWS.receipts); }; };
+  bind('rq','q'); bind('rm','method','change'); bind('rs','status','change'); bind('rf','from','change'); bind('rt','to','change');
+  $('#rReset').onclick = () => { RCPT_F = { q:'', method:'', from:'', to:'', status:'', page:1 }; VIEWS.receipts(); };
+  $('#rExport').onclick = () => exportCSV('receipts', list.map(s => ({
+    receipt_number:s.receipt_number, transaction_number:s.transaction_number, date:s.transaction_date,
+    customer:s.customer_name, cashier:s.cashier_name, payment_method:s.payment_method,
+    subtotal:s.subtotal, discount:s.discount, total:s.total, amount_paid:s.amount_paid, change:s.change, status:s.status })));
+  const pv = $('#rPrev'), nx = $('#rNextP');   if (pv) pv.onclick = () => { RCPT_F.page--; VIEWS.receipts(); };   if (nx) nx.onclick = () => { RCPT_F.page++; VIEWS.receipts(); };   $$('#v-receipts [data-open]').forEach(r => r.onclick = () => openReceiptRecord(r.dataset.open));
 };
 
-/* ---------------- 12. ARCHITECTURE BOOT SEQUENCE ---------------- */
-function tickClock(){
-  const now = new Date();
-  const el = $('#clock');
-  if (el) el.textContent = now.toLocaleDateString('en-PH',{weekday:'short', day:'2-digit', month:'short'}) + ' \u00B7 ' + now.toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+function openReceiptRecord(saleId){
+  const s = byId(S.sales, saleId); if (!s) return;
+  const items = S.sale_items.filter(i => i.sale_id === saleId);
+  modal({
+    title:`Transaction ${s.transaction_number}`, width:'wide',
+    body:`<div class="grid" style="grid-template-columns:minmax(0,1fr) 300px">
+      <div>
+        ${s.status==='voided' ? `<div class="banner bad" style="margin-bottom:12px"><span>\u26A0</span><div><b>Voided</b> on ${D.dt(s.voided_at)} by ${esc(s.voided_by\vert{}\vert{}'—')}.<br>Reason:${esc(s.void_reason||'—')}</div></div>` : ''}
+        <div class="fgrid small" style="margin-bottom:14px">
+          <div><b>Receipt</b> ${esc(s.receipt_number)}</div>
+          <div><b>Date</b> ${D.dt(s.transaction_date)}</div>
+          <div><b>Cashier</b> ${esc(s.cashier_name||'—')}</div>
+          <div><b>Customer Type</b> ${esc(s.customer_type || 'REGULAR')}</div>
+          <div><b>Payment</b> ${esc(s.payment_method)}${s.payment_ref?' · '+esc(s.payment_ref):''}</div>
+          <div><b>Status</b> ${esc(s.status)}</div>
+        </div>
+        <table class="tbl"><thead><tr><th>Item</th><th class="num">Qty</th><th class="num">Unit</th><th class="num">Amount</th></tr></thead>
+        <tbody>${items.map(i => `<tr><td>${esc(i.name)}<div class="tiny muted">${esc(i.generic_name||'')}</div></td>
+          <td class="num">${qtyFmt(i.quantity)}</td><td class="num">${peso(i.unit_price)}</td><td class="num">${peso(i.subtotal)}</td></tr>`).join('')}</tbody></table>
+        <div style="max-width:280px; margin-left:auto; margin-top:12px">
+          <div class="trow"><span>Subtotal</span><span>${peso(s.subtotal)}</span></div>
+          ${num(s.discount)?`<div class="trow"><span>${esc(s.discount_type\vert{}\vert{}'Discount')}</span><span>\u2212${peso(s.discount)}</span></div>`:''}
+          <div class="trow" style="font-weight:700; color:var(--ink); font-size:16px"><span>Total</span><span>${peso(s.total)}</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="preview-paper thermal" style="padding:0; border:none; background:transparent">
+            ${receiptHTML(saleId)}
+        </div>
+      </div>
+    </div>`,
+    footer:`<button class="btn" data-close>Close</button>
+      ${s.status==='completed' && can('receipts.void') ? '<button class="btn danger" id="rVoid">Void transaction</button>' : ''}
+      <button class="btn" id="rPdf">Download PDF</button>
+      <button class="btn pri" id="rRe">Reprint receipt</button>`,
+    onOpen:(root, close) => {
+      root.querySelector('#rRe').onclick = async () => {
+        printDoc(receiptHTML(saleId));
+        const r = S.receipts.find(x => x.sale_id === saleId);
+        if (r){ r.print_count = num(r.print_count)+1; r.printed_at = new Date().toISOString(); await Repo.put('receipts', r); }
+        audit('Reprinted receipt', s.receipt_number);
+      };
+      root.querySelector('#rPdf').onclick = () => generateReceiptPDF(saleId);
+      const vb = root.querySelector('#rVoid');
+      if (vb) vb.onclick = async () => { const ok = await voidSale(saleId); if (ok) close(); };
+    }
+  });
 }
 
+async function voidSale(saleId){
+  const s = byId(S.sales, saleId); if (!s || s.status !== 'completed') return false;
+  const reason = await confirmDlg('Void this transaction?',
+    `Receipt <b>${esc(s.receipt_number)}</b> for <b>${peso(s.total)}</b> will be marked void and every item returned to stock. The receipt stays on record.`,
+    { danger:true, okLabel:'Void and restock', needReason:true });
+  if (!reason) return false;
+
+  const now = new Date().toISOString();
+  const items = S.sale_items.filter(i => i.sale_id === saleId);
+  const patched = [], movs = [], batchPatches = [];
+  items.forEach(i => {
+    const p = prod(i.product_id); if (!p) return;
+    const prev = num(p.current_stock), next = prev + num(i.quantity);
+    const already = patched.find(x => x.id === p.id);
+    if (already){ already.current_stock += num(i.quantity); }
+    else patched.push({ ...p, current_stock:next, updated_at:now });
+    movs.push({ id:uid(), product_id:p.id, movement_type:'Returned item', quantity:num(i.quantity), previous_stock:prev, new_stock:next,
+      reference_number:s.transaction_number, reason:`Void of ${s.receipt_number}: ${reason}`, user_id:ME.id, user_name:ME.name, created_at:now });
+    (i.batch_alloc || []).forEach(a => {
+      const b = byId(S.batches, a.batch_id);
+      if (b) batchPatches.push({ ...b, qty:num(b.qty) + num(a.qty) });
+    });
+  });
+  const voided = { ...s, status:'voided', void_reason:reason, voided_by:ME.name, voided_at:now };
+
+  try {
+    await Repo.batch(['sales','products','batches','movements'], st => {
+      st.sales.put(voided);
+      patched.forEach(p => st.products.put(p));
+      batchPatches.forEach(b => st.batches.put(b));
+      movs.forEach(m => st.movements.put(m));
+    });
+  } catch (err){ console.error(err); toast('Void failed — nothing was changed.', 'bad'); return false; }
+
+  const si = S.sales.findIndex(x => x.id === saleId); S.sales[si] = voided;
+  patched.forEach(p => { const i = S.products.findIndex(x => x.id === p.id); if (i > -1) S.products[i] = p; });
+  batchPatches.forEach(b => { const i = S.batches.findIndex(x => x.id === b.id); if (i > -1) S.batches[i] = b; });
+  S.movements.push(...movs);
+  audit('Voided transaction', `${s.receipt_number} — ${reason}`);
+  toast(`${s.receipt_number} voided and stock restored.`);
+  refresh();
+  return true;
+}
+
+/* ---------------- CSV ---------------- */
+function exportCSV(name, rows){
+  if (!rows.length){ toast('Nothing to export.', 'warn'); return; }
+  const cols = Object.keys(rows[0]);
+  const cell = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s; };
+  const csv = '\uFEFF' + [cols.join(','), ...rows.map(r => cols.map(c => cell(r[c])).join(','))].join('\r\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `magallanes-${name}-${D.today()}.csv`;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  toast(`Exported ${rows.length} row${rows.length===1?'':'s'}.`);
+}
+
+/* ---------------- 11. BOOT ---------------- */
 async function boot() {
     try {
-        await initializeStorage();
-        await initializeSettings();
-        await initializeUsers();
-        await initializeDemoData();
+        _db = await openDB();
         await loadApplicationData();
-        initializeTheme();
-        initializeUI();
-        restoreSession();
+        S.settings = (await Repo.get('meta','settings'))?.value || null;
+        if (!S.settings) { S.settings = DEFAULT_SETTINGS(); await saveSettings(); }
+        if (!S.users.length) { await seedUsers(); S.users = await Repo.all('users'); }
+        if (!S.settings.seeded && !S.products.length) {
+            const lg = $('#lgErr'); if(lg) lg.textContent = 'Preparing sample data\u2026';
+            await seedDemoData();
+            if(lg) lg.textContent = '';
+        }
+
+        $('.side .brand .nm').textContent = S.settings.pharmacy.name;
+        $('.side .brand .tag').textContent = S.settings.pharmacy.tagline;
+        const lgHint = $('#lgHint');
+        if (lgHint) lgHint.innerHTML = 'Demo accounts — <code>admin</code> / <code>admin123</code>, <code>cashier</code> / <code>cashier123</code>.';
+        
+        const doLogin = async () => {
+            const u = await login($('#lgUser').value, $('#lgPass').value);
+            if (!u){ $('#lgErr').textContent = 'Invalid credentials.'; return; }
+            $('#lgErr').textContent = '';
+            startSession(u);
+        };
+        const lgGo = $('#lgGo'); if(lgGo) lgGo.onclick = doLogin;
+        ['#lgUser','#lgPass'].forEach(s => { const e=$(s); if(e) e.onkeydown = ev => { if (ev.key === 'Enter') doLogin(); }; });$('#logoutBtn').onclick = logout;
+        
+        $('#themeBtn').onclick = () => {
+            const cur = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            const next = cur === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            try { localStorage.setItem('mp_theme', next); } catch {}
+        };
+        try { const th = localStorage.getItem('mp_theme'); if (th) document.documentElement.setAttribute('data-theme', th); } catch {}
+
+        const sid = sessionStorage.getItem('mp_session');
+        const restored = sid && S.users.find(u => u.id === sid && u.status === 'active');
+        if (restored) startSession(restored); else { const lu=$('#lgUser'); if(lu)lu.focus(); }
+
+        tickClock(); setInterval(tickClock, 1000);
     } catch (error) {
         console.error(error);
         const lg = $('#lgErr');
-        if (lg) lg.textContent = 'System boot failed: ' + error.message;
+        if (lg) lg.textContent = 'System boot failed. Browser might block IndexedDB.';
     }
-}
-
-async function initializeStorage() {
-    _db = await openDB();
-}
-
-async function initializeSettings() {
-    S.settings = (await Repo.get('meta','settings'))?.value || null;
-    if (!S.settings) { S.settings = DEFAULT_SETTINGS(); await saveSettings(); }
-}
-
-async function initializeUsers() {
-    S.users = await Repo.all('users');
-    if (!S.users.length) { await seedUsers(); S.users = await Repo.all('users'); }
-}
-
-async function initializeDemoData() {
-    S.products = await Repo.all('products');
-    if (!S.settings.seeded && !S.products.length) {
-        const lg = $('#lgErr'); if(lg) lg.textContent = 'Preparing sample data\u2026';
-        await seedDemoData();
-        if(lg) lg.textContent = '';
-    }
-}
-
-async function loadApplicationData() {
-    for (const t of TABLES) { 
-        if (t !== 'users' && t !== 'meta') S[t] = await Repo.all(t); 
-    }
-}
-
-function initializeTheme() {
-    $('#themeBtn').onclick = () => {
-        const cur = document.documentElement.getAttribute('data-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        const next = cur === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        try { localStorage.setItem('mp_theme', next); } catch {}
-    };
-    try { const th = localStorage.getItem('mp_theme'); if (th) document.documentElement.setAttribute('data-theme', th); } catch {}
-}
-
-function initializeUI() {
-    $('.side .brand .nm').textContent = S.settings.pharmacy.name;
-    $('.side .brand .tag').textContent = S.settings.pharmacy.tagline;
-    const lgHint = $('#lgHint');
-    if (lgHint) lgHint.innerHTML = 'Demo accounts — <code>admin</code> / <code>admin123</code>, <code>cashier</code> / <code>cashier123</code>.';
-    
-    const doLogin = async () => {
-        const u = await login($('#lgUser').value, $('#lgPass').value);
-        if (!u){ $('#lgErr').textContent = 'Invalid credentials.'; return; }
-        $('#lgErr').textContent = '';
-        startSession(u);
-    };
-    const lgGo = $('#lgGo'); if(lgGo) lgGo.onclick = doLogin;
-    ['#lgUser','#lgPass'].forEach(s => { const e=$(s); if(e) e.onkeydown = ev => { if (ev.key === 'Enter') doLogin(); }; });$('#logoutBtn').onclick = logout;
-    
-    // Global Keybinds
-    document.addEventListener('keydown', e => {
-      if (!ME) return;
-      const modalOpen = !!$('.modal-bg');
-      if (e.key === 'F1'){ e.preventDefault(); if (can('pos')){ go('pos'); setTimeout(() => $('#posSearch')?.focus(), 40); } }
-      else if (e.key === 'F2'){ e.preventDefault(); if (can('pos')){ go('pos'); setTimeout(() => $('#posBarcode')?.focus(), 40); } }
-      else if (e.key === 'F4'){ e.preventDefault(); if (CURRENT === 'pos' && !modalOpen) showCheckoutModal(); }
-      else if (e.key === 'Escape' && !modalOpen && CURRENT === 'pos') clearCart();
-      else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p'){
-        if (CURRENT === 'pos' && LAST_SALE && !modalOpen){ e.preventDefault(); showReceiptModal(LAST_SALE); }
-      }
-    });
-
-    tickClock(); setInterval(tickClock, 1000);
-}
-
-function restoreSession() {
-    const sid = sessionStorage.getItem('mp_session');
-    const restored = sid && S.users.find(u => u.id === sid && u.status === 'active');
-    if (restored) startSession(restored); else { const lu=$('#lgUser'); if(lu)lu.focus(); }
 }
 
 boot();
