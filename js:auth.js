@@ -1,8 +1,9 @@
 // ============================================================
-// Authentication. SHA-256 with a pure-JS fallback so the app
-// works even when crypto.subtle is blocked (file://, iframes).
+// Challenge-based auth. No login page. Callers ask for a
+// password at the moment of a privileged action; the returned
+// user object becomes the actor for that action.
 // ============================================================
-import { S, Repo } from './db.js';
+import { S } from './db.js';
 
 function sha256JS(str){
   function rr(n,s){ return (n>>>s)|(n<<(32-s)); }
@@ -60,44 +61,38 @@ export async function sha256(text){
 
 export const hashPw = (pw, salt) => sha256(salt + '\u00A7' + pw);
 
-export async function login(username, password){
-  const u = (S.users || []).find(x =>
-    x.username.toLowerCase() === String(username).trim().toLowerCase() &&
-    x.status === 'active');
+// Verify a username+password against the users table.
+// Returns the user object on success, null otherwise.
+export async function verify(username, password){
+  const uname = String(username || '').trim().toLowerCase();
+  if (!uname || !password) return null;
+  const u = (S.users || []).find(x => x.username.toLowerCase() === uname && x.status === 'active');
   if (!u) return null;
   const h = await hashPw(password, u.pass_salt);
   return h === u.pass_hash ? u : null;
 }
 
-export function currentUser(){
-  try { return JSON.parse(sessionStorage.getItem('mp_user') || 'null'); }
-  catch { return null; }
+// Verify a password belongs to a user with a specific role.
+// Used by void-transaction and destructive operations.
+export async function verifyRole(username, password, role){
+  const u = await verify(username, password);
+  if (!u) return null;
+  return u.role === role ? u : null;
 }
 
-export function logout(){
-  sessionStorage.removeItem('mp_user');
-  location.href = 'index.html';
-}
+// The last person who successfully authorised an action. Kept only
+// in memory for the tab, shown in the sidebar as "last action by".
+export let LAST_ACTOR = null;
+export function setLastActor(user){ LAST_ACTOR = user; }
 
-export const ROLE_PERMS = {
-  'Administrator':   ['*'],
-  'Cashier':         ['pos','receipts','products.view'],
-  'Inventory Staff': ['products','products.view','inventory','inventory.adjust','procurement','orders'],
-  'Manager':         ['pos','analytics','products.view','receipts','receipts.void','inventory','inventory.adjust','procurement','orders']
-};
-
-export function can(user, perm){
-  if (!user) return false;
-  const list = ROLE_PERMS[user.role] || [];
-  return list.includes('*') || list.includes(perm);
-}
-
-export async function audit(action, detail){
-  const u = currentUser();
+// Log an audit entry. No global session — every action logs its own actor.
+export async function audit(action, detail, actor){
+  const { Repo, uid } = await import('./db.js');
   const rec = {
     id: uid(),
     at: new Date().toISOString(),
-    user_name: u ? u.name : 'System',
+    user_name: actor ? actor.name : 'Unknown',
+    user_role: actor ? actor.role : '',
     action,
     detail: String(detail || '')
   };
@@ -105,7 +100,15 @@ export async function audit(action, detail){
   await Repo.put('audit', rec);
 }
 
-function uid(){
-  return crypto.randomUUID ? crypto.randomUUID()
-    : 'id-' + Date.now() + '-' + Math.random().toString(36).slice(2,10);
+export const ROLE_PERMS = {
+  'Administrator':   ['*'],
+  'Cashier':         ['pos','receipts'],
+  'Inventory Staff': ['products','inventory','inventory.adjust','procurement'],
+  'Manager':         ['pos','analytics','receipts','receipts.void','inventory','inventory.adjust','procurement']
+};
+
+export function can(user, perm){
+  if (!user) return false;
+  const list = ROLE_PERMS[user.role] || [];
+  return list.includes('*') || list.includes(perm);
 }
