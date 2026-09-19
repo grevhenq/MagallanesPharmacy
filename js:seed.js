@@ -861,5 +861,57 @@ function fmtDT(s){
   return s ? new Date(s).toLocaleString('en-PH', { year:'numeric', month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
 }
 
+async function staffPanel(){
+  const users = (S.users || []).slice();
+  const m = modal({
+    title: 'Staff accounts',
+    body: `
+      <p class="small muted">Passwords here are the tokens that authorise privileged actions.
+      To change a password, fill in the new value and click Save.</p>
+      <table class="tbl">
+        <thead><tr><th>Name</th><th>Username</th><th>Role</th><th>New password</th><th></th></tr></thead>
+        <tbody>${users.map(u => `
+          <tr>
+            <td>${esc(u.name)}</td>
+            <td class="mono">${esc(u.username)}</td>
+            <td>${esc(u.role)}</td>
+            <td><input type="password" data-pw="${u.id}" placeholder="Leave blank to keep"></td>
+            <td><button class="btn btn-sm" data-save="${u.id}">Save</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`,
+    footer: `<button class="btn btn-primary" data-close>Done</button>`,
+    onOpen: (root, close) => {
+      root.querySelectorAll('[data-save]').forEach(btn => {
+        btn.onclick = async () => {
+          const id = btn.dataset.save;
+          const pwInput = root.querySelector(`[data-pw="${id}"]`);
+          const newPw = pwInput.value;
+          if (!newPw) return;
+
+          const actor = await askPassword({
+            title: 'Change staff password',
+            role: 'Administrator',
+            reason: `Changing password for <b>${esc((S.users||[]).find(x => x.id === id)?.name || '')}</b>. Administrator only.`
+          });
+          if (!actor) return;
+
+          const { uid, Repo } = await import('./db.js');
+          const { hashPw } = await import('./auth.js');
+          const user = S.users.find(x => x.id === id);
+          const salt = uid().slice(0, 12);
+          const updated = { ...user, pass_salt: salt, pass_hash: await hashPw(newPw, salt) };
+          await Repo.put('users', updated);
+          S.users[S.users.findIndex(x => x.id === id)] = updated;
+          pwInput.value = '';
+          audit('Changed staff password', updated.username, actor);
+          toast(`Password updated for ${updated.name}.`);
+        };
+      });
+    }
+  });
+  return m;
+}
+
 // --- start ---
 go('pos');
