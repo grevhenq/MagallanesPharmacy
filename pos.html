@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Magallanes Pharmacy · POS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style id="pageRule">@page{size:auto;margin:0}</style>
+</head>
+<body>
+
+<div id="app" hidden>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-name">MAGALLANES PHARMACY</div>
+      <div class="sidebar-tag">Your Health, Our Priority.</div>
+    </div>
+    <nav id="nav" class="sidebar-nav"></nav>
+    <div class="sidebar-user">
+      <div class="user-name" id="whoName">—</div>
+      <div class="user-role" id="whoRole">—</div>
+      <div class="user-actions">
+        <button id="themeBtn" class="btn btn-sm btn-ghost">Theme</button>
+        <button id="logoutBtn" class="btn btn-sm btn-ghost">Sign out</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">POS</div>
+        <div class="topbar-sub" id="pageSub"></div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-clock" id="clock"></div>
+    </header>
+
+    <main class="views">
+      <section class="view" id="view-pos" hidden></section>
+      <section class="view" id="view-products" hidden></section>
+      <section class="view" id="view-inventory" hidden></section>
+      <section class="view" id="view-analytics" hidden></section>
+      <section class="view" id="view-receipts" hidden></section>
+      <section class="view" id="view-settings" hidden></section>
+    </main>
+  </div>
+
+</div>
+
+<div id="modalRoot"></div>
+<div id="toasts" class="toasts"></div>
+<div id="printArea" class="print-area"></div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
