@@ -3,72 +3,59 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Sign in · Magallanes Pharmacy</title>
+<title>Magallanes Pharmacy · POS</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Libre+Franklin:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<style id="pageRule">@page{size:auto;margin:0}</style>
 </head>
-<body class="login-page">
+<body>
 
-<main class="login-card">
-  <header class="login-head">
-    <div class="brand-mark" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="28" height="28"><path fill="currentColor" d="M9.2 2h5.6v4.4h4.4v5.6h-4.4V22H9.2V12H4.8V6.4h4.4z"/></svg>
+<div id="app" hidden>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-name">MAGALLANES PHARMACY</div>
+      <div class="sidebar-tag">Your Health, Our Priority.</div>
     </div>
-    <h1>Magallanes Pharmacy</h1>
-    <p>Your Health, Our Priority.</p>
-  </header>
+    <nav id="nav" class="sidebar-nav"></nav>
+    <div class="sidebar-user">
+      <div class="user-name" id="lastUser">No action yet</div>
+      <div class="user-role" id="lastRole">Actions will ask for a password</div>
+      <div class="user-actions">
+        <button id="themeBtn" class="btn btn-sm btn-ghost">Theme</button>
+        <button id="usersBtn" class="btn btn-sm btn-ghost">Staff</button>
+      </div>
+    </div>
+  </aside>
 
-  <form id="loginForm" class="login-body" autocomplete="on">
-    <label class="field">
-      <span>Username</span>
-      <input id="username" name="username" autocomplete="username" autofocus required>
-    </label>
-    <label class="field">
-      <span>Password</span>
-      <input id="password" name="password" type="password" autocomplete="current-password" required>
-    </label>
-    <p id="error" class="error" role="alert"></p>
-    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
-  </form>
+  <div class="main">
+    <header class="topbar">
+      <div>
+        <div class="topbar-title" id="pageTitle">POS</div>
+        <div class="topbar-sub" id="pageSub"></div>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-clock" id="clock"></div>
+    </header>
 
-  <footer class="login-hint">
-    <p><strong>Demo accounts</strong></p>
-    <p><code>admin</code> / <code>admin123</code> · <code>cashier</code> / <code>cashier123</code></p>
-    <p><code>inventory</code> / <code>inventory123</code> · <code>manager</code> / <code>manager123</code></p>
-  </footer>
-</main>
+    <main class="views">
+      <section class="view" id="view-pos" hidden></section>
+      <section class="view" id="view-products" hidden></section>
+      <section class="view" id="view-inventory" hidden></section>
+      <section class="view" id="view-analytics" hidden></section>
+      <section class="view" id="view-receipts" hidden></section>
+      <section class="view" id="view-settings" hidden></section>
+    </main>
+  </div>
 
-<script type="module">
-  import { initDB } from './js/db.js';
-  import { seedIfEmpty } from './js/seed.js';
-  import { login } from './js/auth.js';
+</div>
 
-  const form = document.getElementById('loginForm');
-  const errEl = document.getElementById('error');
+<div id="modalRoot"></div>
+<div id="toasts" class="toasts"></div>
+<div id="printArea" class="print-area"></div>
 
-  (async () => {
-    try {
-      await initDB();
-      await seedIfEmpty();
-    } catch (e) {
-      console.error(e);
-      errEl.textContent = 'Storage was blocked. Try a normal (non-private) window.';
-    }
-  })();
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    errEl.textContent = '';
-    const user = await login(
-      document.getElementById('username').value,
-      document.getElementById('password').value
-    );
-    if (!user) { errEl.textContent = 'Wrong username or password.'; return; }
-    sessionStorage.setItem('mp_user', JSON.stringify(user));
-    location.href = 'pos.html';
-  });
-</script>
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
